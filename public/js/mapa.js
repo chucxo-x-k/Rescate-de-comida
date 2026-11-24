@@ -1,6 +1,6 @@
 const CENTRO_POR_DEFECTO = [19.4326, -99.1332];
-const TESELAS = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-const ATRIBUCION = '&copy; OpenStreetMap';
+const TESELAS = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const ATRIBUCION = '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
 
 const disponible = () => typeof window.L !== 'undefined';
 
@@ -11,7 +11,11 @@ function sinMapa(elemento, texto = 'Mapa no disponible sin conexión a internet.
 
 function crearBase(elemento, centro, zoom) {
   const mapa = window.L.map(elemento, { zoomControl: true, attributionControl: true }).setView(centro, zoom);
-  window.L.tileLayer(TESELAS, { maxZoom: 19, attribution: ATRIBUCION }).addTo(mapa);
+  window.L.tileLayer(TESELAS, {
+    maxZoom: 19,
+    attribution: ATRIBUCION,
+    referrerPolicy: 'strict-origin-when-cross-origin',
+  }).addTo(mapa);
   setTimeout(() => mapa.invalidateSize(), 50);
   return mapa;
 }
