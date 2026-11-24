@@ -1,5 +1,4 @@
-// Mapas con Leaflet + OpenStreetMap. Si Leaflet no cargó (sin internet), se muestra un aviso.
-const CENTRO_POR_DEFECTO = [19.4326, -99.1332]; // CDMX
+const CENTRO_POR_DEFECTO = [19.4326, -99.1332];
 const TESELAS = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
 const ATRIBUCION = '&copy; OpenStreetMap';
 
@@ -17,7 +16,6 @@ function crearBase(elemento, centro, zoom) {
   return mapa;
 }
 
-/** Mapa para elegir un punto: clic o arrastrar el marcador. */
 export function mapaSelector(elemento, { latitud, longitud, alCambiar }) {
   if (!disponible()) return sinMapa(elemento, 'Mapa no disponible. Usa "Usar mi ubicación".');
   const tienePunto = Number.isFinite(latitud) && Number.isFinite(longitud);
@@ -46,7 +44,6 @@ export function mapaSelector(elemento, { latitud, longitud, alCambiar }) {
   return { fijar, destruir: () => mapa.remove() };
 }
 
-/** Mapa de solo lectura con uno o varios puntos (y línea entre ellos). */
 export function mapaPuntos(elemento, puntos, { linea = false } = {}) {
   const validos = puntos.filter((p) => Number.isFinite(p.latitud) && Number.isFinite(p.longitud));
   if (validos.length === 0) return sinMapa(elemento, 'Sin ubicación registrada.');
@@ -62,10 +59,9 @@ export function mapaPuntos(elemento, puntos, { linea = false } = {}) {
     window.L.polyline(coordenadas, { color: '#1d1c1a', weight: 3, dashArray: '6 6' }).addTo(mapa);
   }
   if (coordenadas.length > 1) mapa.fitBounds(coordenadas, { padding: [36, 36] });
-  return { fijar() {}, destruir: () => mapa.remove() };
+  return { destruir: () => mapa.remove() };
 }
 
-/** Ubicación GPS del dispositivo. */
 export function obtenerUbicacion() {
   return new Promise((resolver, rechazar) => {
     if (!navigator.geolocation) {

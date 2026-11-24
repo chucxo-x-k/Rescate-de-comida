@@ -7,7 +7,6 @@ import { exigir, texto } from '../utils/validacion.js';
 
 const MAX_FOTOS = 6;
 
-/** CU 9: Registrar evidencia y confirmación digital (incluye el CU 10). */
 export class ServicioEvidencia {
   constructor({ repos, almacenamiento, notificador, secretoCodigo }) {
     this.repos = repos;
@@ -65,7 +64,6 @@ export class ServicioEvidencia {
     return this.obtener(voluntario, idRuta);
   }
 
-  /** Marca la ruta ENTREGADA y el lote ENTREGADO: el lote concluye su ciclo de vida. */
   async cerrarCicloLote(fila) {
     const rutaOk = await this.repos.rutas.cambiarEstadoSi(fila.id_ruta, EstadoRuta.EN_CAMINO, EstadoRuta.ENTREGADA, {
       cerrar: true,

@@ -12,13 +12,8 @@ export const EXTENSIONES = Object.freeze({
   'application/pdf': 'pdf',
 });
 
-/** Carpetas cuyo contenido no se publica: se sirve solo por la API con permisos. */
 export const CARPETAS_PRIVADAS = Object.freeze(['documentos']);
 
-/**
- * Guarda archivos en disco. Lo público queda en <raiz>/publico (servido en /uploads)
- * y lo privado en <raiz>/privado (solo accesible con leer()).
- */
 export class AlmacenamientoLocal extends IAlmacenamientoArchivos {
   constructor(directorioRaiz) {
     super();

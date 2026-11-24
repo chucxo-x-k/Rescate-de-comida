@@ -3,12 +3,6 @@ import { IAlmacenamientoArchivos } from '../interfaces/IAlmacenamientoArchivos.j
 import { CARPETAS_PRIVADAS, EXTENSIONES } from './AlmacenamientoLocal.js';
 import { ErrorApp } from '../utils/ErrorApp.js';
 
-/**
- * AlmacenamientoNube (AWS S3). Requiere instalar el SDK:
- *   npm install @aws-sdk/client-s3
- * Credenciales: variables estándar AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY.
- * Las carpetas públicas (lotes, evidencias, firmas) deben tener lectura pública en el bucket.
- */
 export class AlmacenamientoNube extends IAlmacenamientoArchivos {
   constructor({ bucket, region, urlPublica }) {
     super();

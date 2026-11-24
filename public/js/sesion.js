@@ -12,9 +12,7 @@ function escribir(valor) {
   try {
     if (valor) localStorage.setItem(CLAVE, JSON.stringify(valor));
     else localStorage.removeItem(CLAVE);
-  } catch {
-    // Almacenamiento no disponible (modo privado): la sesión vive solo en memoria.
-  }
+  } catch {}
 }
 
 let actual = leer();

@@ -1,15 +1,10 @@
-// Utilidades de interfaz: plantillas con escape automático, avisos, modales y formatos.
-
 const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
-export const escapar = (valor) => String(valor ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]);
+const escapar = (valor) => String(valor ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]);
 
 class HtmlSeguro {
   constructor(texto) { this.texto = texto; }
   toString() { return this.texto; }
 }
-
-/** Marca un texto como HTML confiable (solo para marcado generado por la propia app). */
-export const crudo = (texto) => new HtmlSeguro(texto);
 
 function convertir(valor) {
   if (valor instanceof HtmlSeguro) return valor.texto;
@@ -18,7 +13,6 @@ function convertir(valor) {
   return escapar(valor);
 }
 
-/** Plantilla etiquetada: html`<p>${texto}</p>` escapa los valores interpolados. */
 export function html(partes, ...valores) {
   let salida = '';
   partes.forEach((parte, i) => {
@@ -28,7 +22,6 @@ export function html(partes, ...valores) {
   return new HtmlSeguro(salida);
 }
 
-/** Inserta marcado generado con html``; acepta arreglos y escapa cualquier texto plano. */
 export function montar(elemento, contenido) {
   elemento.innerHTML = convertir(contenido);
 }
@@ -36,7 +29,6 @@ export function montar(elemento, contenido) {
 export const $ = (selector, raiz = document) => raiz.querySelector(selector);
 export const $$ = (selector, raiz = document) => [...raiz.querySelectorAll(selector)];
 
-// ---------- Avisos ----------
 export function avisar(mensaje, tipo = 'info', duracionMs = 4000) {
   const contenedor = document.getElementById('avisos');
   const nodo = document.createElement('div');
@@ -52,7 +44,6 @@ export function avisarError(error) {
   avisar(error?.message ?? 'Ocurrió un error inesperado.', 'error', 5000);
 }
 
-// ---------- Modales ----------
 export function abrirModal(contenido, { alCerrar } = {}) {
   const fondo = document.createElement('div');
   fondo.className = 'modal-fondo';
@@ -92,14 +83,12 @@ export function confirmar(titulo, mensaje, { textoAceptar = 'Aceptar', peligro =
   });
 }
 
-// ---------- Formularios ----------
 export function limpiarErrores(formulario) {
   $$('.error-campo', formulario).forEach((n) => n.remove());
   $$('.invalido', formulario).forEach((n) => n.classList.remove('invalido'));
   $('.mensaje-error', formulario)?.remove();
 }
 
-/** Muestra los errores de validación del servidor junto a cada campo (data-campo). */
 export function mostrarErrores(formulario, error) {
   limpiarErrores(formulario);
   const detalles = error?.detalles ?? {};
@@ -136,8 +125,7 @@ export async function conBoton(boton, tarea) {
   }
 }
 
-/** Reduce fotos grandes del celular antes de subirlas (máx. 1600 px, JPEG). */
-export async function comprimirImagen(archivo, ladoMaximo = 1600) {
+async function comprimirImagen(archivo, ladoMaximo = 1600) {
   if (!archivo.type.startsWith('image/') || typeof createImageBitmap !== 'function') return archivo;
   try {
     const imagen = await createImageBitmap(archivo);
@@ -154,7 +142,6 @@ export async function comprimirImagen(archivo, ladoMaximo = 1600) {
   }
 }
 
-/** Selector de fotos con vista previa. Devuelve { archivos() }. */
 export function selectorFotos(contenedor, { maximo = 6 } = {}) {
   const fotos = [];
   montar(contenedor, html`
@@ -204,15 +191,14 @@ export function selectorFotos(contenedor, { maximo = 6 } = {}) {
   return { archivos: () => fotos.map((f) => f.archivo) };
 }
 
-// ---------- Formatos ----------
-export const ETIQUETA_LOTE = {
+const ETIQUETA_LOTE = {
   PUBLICADO: 'Disponible',
   EN_RECOLECCION: 'En recolección',
   ENTREGADO: 'Entregado',
   CANCELADO: 'Cancelado',
   CADUCADO: 'Caducado',
 };
-export const ETIQUETA_RUTA = {
+const ETIQUETA_RUTA = {
   DISPONIBLE: 'Esperando voluntario',
   EN_RECOLECCION: 'En recolección',
   EN_CAMINO: 'En camino',
@@ -225,7 +211,7 @@ export const ETIQUETA_ROL = {
   VOLUNTARIO: 'Voluntario',
   ADMINISTRADOR: 'Administrador',
 };
-export const ETIQUETA_VERIFICACION = {
+const ETIQUETA_VERIFICACION = {
   NO_VERIFICADO: 'Sin verificar',
   EN_REVISION: 'En revisión',
   VERIFICADO: 'Verificado',
@@ -260,7 +246,7 @@ export function fechaCorta(fecha) {
 
 export const horaCorta = (hora) => (hora ? hora.slice(0, 5) : '');
 
-const fechaIso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+export const fechaIso = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 
 export function textoCaducidad(fecha, hora) {
   const hoy = new Date();
@@ -296,11 +282,9 @@ export function enlaceMaps(latitud, longitud) {
 }
 
 export const vacio = (texto) => html`<div class="vacio">${texto}</div>`;
-export const cargando = () => html`<div class="cargando">Cargando…</div>`;
 
-// ---------- Íconos (SVG en línea) ----------
 const trazo = (d) =>
-  crudo(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`);
+  new HtmlSeguro(`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d}</svg>`);
 
 export const ICONOS = {
   panel: trazo('<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>'),

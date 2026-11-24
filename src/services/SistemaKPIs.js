@@ -6,7 +6,6 @@ import { vistaRuta } from './vistas.js';
 const PERIODOS_VALIDOS = [7, 30, 90, 365];
 const DIAS_GRAFICA = 7;
 
-/** CU 7 y RF Dashboard 1: KPIs calculados sobre lotes, rutas y evidencias. */
 export class SistemaKPIs {
   constructor({ repos }) {
     this.repos = repos;

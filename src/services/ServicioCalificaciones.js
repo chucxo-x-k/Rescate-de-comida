@@ -2,7 +2,6 @@ import { EstadoRuta, RolUsuario } from '../domain/enums.js';
 import { ErrorApp } from '../utils/ErrorApp.js';
 import { entero, exigir, texto } from '../utils/validacion.js';
 
-/** Calificaciones entre participantes al cerrar una entrega; alimentan el índice de confiabilidad. */
 export class ServicioCalificaciones {
   constructor({ repos }) {
     this.repos = repos;
@@ -21,7 +20,6 @@ export class ServicioCalificaciones {
     return { fila, lista };
   }
 
-  /** A quién puede calificar todavía el usuario en esta ruta. */
   async pendientes(usuario, idRuta) {
     const { fila, lista } = await this.#participantes(idRuta);
     if (!lista.some((p) => p.idUsuario === usuario.idUsuario)) throw ErrorApp.prohibido();

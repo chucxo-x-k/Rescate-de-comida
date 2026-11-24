@@ -15,7 +15,6 @@ export function rutasCatalogos(c, { autenticar }) {
     res.json({ parametros: Object.fromEntries(filas.map((f) => [f.clave, f.valor])) });
   });
 
-  // CU 7: Panel de control (KPIs) para el voluntario logístico.
   router.get('/kpis', autenticar, requiereRol(RolUsuario.VOLUNTARIO, RolUsuario.ADMINISTRADOR), async (req, res) => {
     const indicadores = await c.kpis.calcular({ dias: req.query.dias, idCategoria: req.query.categoria }, req.usuario);
     res.json({ indicadores });

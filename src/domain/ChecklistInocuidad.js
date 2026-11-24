@@ -21,10 +21,6 @@ export class ChecklistInocuidad {
     this.observaciones = observaciones || null;
   }
 
-  /**
-   * Arma el checklist con las respuestas del voluntario.
-   * `respuestas` es un objeto { "Cadena de frío mantenida": true, ... }.
-   */
   static desdeRespuestas(idRuta, respuestas = {}, temperaturaC = null, observaciones = null) {
     const items = CRITERIOS_INOCUIDAD.map(
       (criterio) => new ItemChecklist({ criterio, cumple: respuestas[criterio] === true || respuestas[criterio] === 'true' }),

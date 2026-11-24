@@ -25,7 +25,6 @@ export class Ubicacion {
     return Number.isFinite(lat) && Number.isFinite(lng) && lat >= -90 && lat <= 90 && lng >= -180 && lng <= 180;
   }
 
-  /** Devuelve una Ubicacion o null si las coordenadas no son válidas. */
   static desde(latitud, longitud, direccion = '') {
     return Ubicacion.coordenadasValidas(latitud, longitud) ? new Ubicacion(latitud, longitud, direccion) : null;
   }
@@ -34,7 +33,6 @@ export class Ubicacion {
   get longitud() { return this.#longitud; }
   get direccion() { return this.#direccion; }
 
-  /** Distancia en línea recta (fórmula de Haversine) en kilómetros. */
   distanciaKm(otra) {
     const dLat = aRadianes(otra.latitud - this.#latitud);
     const dLng = aRadianes(otra.longitud - this.#longitud);

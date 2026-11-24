@@ -1,4 +1,3 @@
-// Canal SSE: recibe alertas al instante (requerimiento de notificar en menos de 5 s).
 let fuente = null;
 const oyentes = new Set();
 
@@ -19,7 +18,6 @@ export function desconectar() {
   fuente = null;
 }
 
-/** Devuelve una función para dejar de escuchar. */
 export function escuchar(oyente) {
   oyentes.add(oyente);
   return () => oyentes.delete(oyente);

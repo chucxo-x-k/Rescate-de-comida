@@ -7,6 +7,7 @@ import { fechaLocal, horaLocal } from '../utils/fechas.js';
 import { vistaRuta } from './vistas.js';
 
 const RADIOS_KM = [5, 10, 20, 50];
+const DISTANCIA_MAXIMA_KM = 9999.99;
 
 export class ServicioRutas {
   constructor({ repos, notificador, secretoCodigo }) {
@@ -23,7 +24,6 @@ export class ServicioRutas {
     return vistaRuta(fila, { usuario, secretoCodigo: this.secretoCodigo, umbralHoras: await this.#umbral() });
   }
 
-  /** Receptor: "Aceptar lote" en el detalle. Crea la ruta DISPONIBLE para los voluntarios. */
   async crearDesdeLote(receptor, idLote) {
     if (receptor.rol !== RolUsuario.RECEPTOR) throw ErrorApp.prohibido('Solo los receptores aceptan lotes.');
     if (!receptor.puedeOperar()) throw ErrorApp.prohibido('Necesitas una cuenta verificada para recibir lotes.');
@@ -42,7 +42,6 @@ export class ServicioRutas {
       );
     }
 
-    const DISTANCIA_MAXIMA_KM = 9999.99; // límite de DECIMAL(6,2) en rutas_recoleccion.distancia_km
     const distanciaKm = receptor.ubicacion && lote.ubicacion
       ? Math.min(receptor.ubicacion.distanciaKm(lote.ubicacion), DISTANCIA_MAXIMA_KM)
       : null;
@@ -85,7 +84,6 @@ export class ServicioRutas {
     );
   }
 
-  /** Voluntario: "Rutas disponibles" con filtro de zona (radio) y orden. */
   async listarDisponibles(voluntario, { radioKm = null, orden = 'caducidad' } = {}) {
     const radio = RADIOS_KM.includes(Number(radioKm)) ? Number(radioKm) : null;
     const filas = await this.repos.rutas.listarDisponibles();
@@ -105,7 +103,6 @@ export class ServicioRutas {
     return { radioKm: radio, orden, rutas: filtradas };
   }
 
-  /** CU 8: Aceptar ruta de recolección. */
   async aceptar(voluntario, idRuta) {
     if (voluntario.rol !== RolUsuario.VOLUNTARIO) throw ErrorApp.prohibido('Solo los voluntarios aceptan rutas.');
     if (await this.repos.rutas.activaDeVoluntario(voluntario.idUsuario)) {
@@ -142,14 +139,12 @@ export class ServicioRutas {
     return this.rutaActiva(voluntario);
   }
 
-  /** Voluntario: "Mi ruta activa". */
   async rutaActiva(voluntario) {
     const fila = await this.repos.rutas.activaDeVoluntario(voluntario.idUsuario);
     if (!fila) return null;
     return this.#vista(fila, voluntario);
   }
 
-  /** Receptor: "Mis recepciones" (incluye el código de confirmación para la entrega). */
   async misRecepciones(receptor) {
     if (receptor.rol !== RolUsuario.RECEPTOR) throw ErrorApp.prohibido();
     const filas = await this.repos.rutas.listarPorReceptor(receptor.idUsuario);

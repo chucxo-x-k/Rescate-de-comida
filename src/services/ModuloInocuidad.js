@@ -6,11 +6,6 @@ import {
 import { ErrorApp } from '../utils/ErrorApp.js';
 import { aNumero, texto } from '../utils/validacion.js';
 
-/**
- * CU 10: Validar checklist de inocuidad.
- * Requerimiento ético-legal 2: el checklist se marca obligatoriamente antes
- * de confirmar la recolección; al aprobarse la ruta pasa a EN_CAMINO.
- */
 export class ModuloInocuidad {
   constructor({ repos, notificador }) {
     this.repos = repos;
@@ -61,7 +56,6 @@ export class ModuloInocuidad {
     return checklist;
   }
 
-  /** Pasos 1-4 del CU 10: evalúa respuestas y, si todo cumple, otorga el visto bueno. */
   async evaluar(voluntario, idRuta, datos) {
     const fila = await this.#rutaDelVoluntario(voluntario, idRuta, [EstadoRuta.EN_RECOLECCION]);
     const checklist = this.#construir(idRuta, datos);
@@ -82,13 +76,11 @@ export class ModuloInocuidad {
     return { aprobado, incumplidos: checklist.criteriosIncumplidos(), checklist: checklist.toJSON() };
   }
 
-  /** Visto bueno: confirma la recolección (EN_RECOLECCION → EN_CAMINO). */
   async otorgarVistoBueno(idRuta) {
     const ok = await this.repos.rutas.cambiarEstadoSi(idRuta, EstadoRuta.EN_RECOLECCION, EstadoRuta.EN_CAMINO);
     if (!ok) throw ErrorApp.conflicto('La ruta cambió de estado; recarga la pantalla.');
   }
 
-  /** Alerta de rechazo del lote por incumplimiento normativo. */
   async reportarIncumplimiento(voluntario, idRuta, datos) {
     const observaciones = texto(datos.observaciones);
     if (!observaciones) throw ErrorApp.solicitudInvalida('Describe el incumplimiento en observaciones.');

@@ -3,7 +3,6 @@ import { Notificacion } from '../domain/Notificacion.js';
 import { TipoNotificacion, esValorDe } from '../domain/enums.js';
 import { fechaHoraLocal } from '../utils/fechas.js';
 
-/** Implementa INotificador: guarda la alerta (tabla notificaciones) y la empuja por SSE. */
 export class ServicioNotificaciones extends INotificador {
   constructor({ repos, canal }) {
     super();
@@ -20,7 +19,6 @@ export class ServicioNotificaciones extends INotificador {
     return true;
   }
 
-  /** Nombre del diagrama de clases. */
   enviarPush(usuario, mensaje, opciones) {
     const id = typeof usuario === 'object' ? usuario.idUsuario : usuario;
     return this.enviar(id, mensaje, opciones);

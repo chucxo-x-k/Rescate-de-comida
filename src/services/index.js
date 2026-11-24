@@ -25,7 +25,6 @@ function crearAlmacenamiento(config) {
   return new AlmacenamientoLocal(config.directorioLocal);
 }
 
-/** Raíz de composición: arma las dependencias del diagrama de clases. */
 export function crearContenedor(config = env) {
   const repos = crearRepositorios();
   const almacenamiento = crearAlmacenamiento(config.almacenamiento);

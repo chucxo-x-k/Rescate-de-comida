@@ -1,10 +1,6 @@
 import { IRepositorio } from '../interfaces/IRepositorio.js';
 import { consultar } from '../config/db.js';
 
-/**
- * RepositorioSQL<T>: implementación genérica de IRepositorio sobre MySQL/MariaDB.
- * Los repositorios específicos heredan de aquí y agregan sus consultas.
- */
 export class RepositorioSQL extends IRepositorio {
   constructor(tabla, llavePrimaria, columnas, { autoIncremento = true } = {}) {
     super();
@@ -14,7 +10,6 @@ export class RepositorioSQL extends IRepositorio {
     this.autoIncremento = autoIncremento;
   }
 
-  /** Conserva solo columnas conocidas para evitar inyección de campos. */
   filtrar(datos) {
     return Object.fromEntries(
       Object.entries(datos).filter(([columna, valor]) => this.columnas.has(columna) && valor !== undefined),
@@ -44,10 +39,6 @@ export class RepositorioSQL extends IRepositorio {
     return resultado.affectedRows > 0;
   }
 
-  /**
-   * Búsqueda por igualdad de columnas.
-   * `orden` debe venir del código (no del usuario), p. ej. "fecha DESC".
-   */
   async buscar(condiciones = {}, { orden = null, limite = null } = {}) {
     const filtro = this.filtrar(condiciones);
     const columnas = Object.keys(filtro);

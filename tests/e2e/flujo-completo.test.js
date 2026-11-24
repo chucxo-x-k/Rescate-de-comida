@@ -1,6 +1,3 @@
-// Prueba de integración: recorre los 11 casos de uso contra la base de datos real.
-// Requiere MySQL/MariaDB con la base creada (npm run db:init). Usa correos únicos,
-// así que puede ejecutarse varias veces sin reiniciar la base.
 import { test, before, after } from 'node:test';
 import assert from 'node:assert/strict';
 import { crearContenedor } from '../../src/services/index.js';
@@ -81,7 +78,6 @@ function formLote({ nombre, descripcion, horasParaCaducar = 30, peso = 15 }) {
   return form;
 }
 
-/** Abre el stream SSE y resuelve con el primer evento "notificacion" que cumpla el filtro. */
 async function esperarNotificacion(token, filtro, tiempoMaximoMs = 5000) {
   const controlador = new AbortController();
   const res = await fetch(`${base}/api/notificaciones/stream?token=${encodeURIComponent(token)}`, {
@@ -169,7 +165,6 @@ test('CU 3: verificación de identidad / organización', async () => {
   const solReceptor = pendientes.datos.solicitudes.find((s) => s.usuario.idUsuario === ids.RECEPTOR);
   assert.ok(solDonante && solReceptor);
 
-  // El administrador puede abrir los documentos privados; otro usuario no.
   const idDoc = solDonante.documentos[0].idDocumento;
   const archivoAdmin = await fetch(`${base}/api/verificacion/documentos/${idDoc}/archivo`, {
     headers: { Authorization: `Bearer ${tokens.ADMIN}` },
@@ -192,7 +187,6 @@ test('CU 3: verificación de identidad / organización', async () => {
   assert.equal(rechazada.datos.estadoVerificacion, 'RECHAZADO');
   assert.equal(rechazada.datos.solicitud.observaciones, 'La constancia está ilegible');
 
-  // Reenvía conservando los documentos anteriores (reemplaza solo la constancia).
   await subirDocumentos('RECEPTOR', ['CONSTANCIA_ORGANIZACION']);
   const segunda = await api('GET', '/api/admin/verificaciones', { token: tokens.ADMIN });
   const solReceptor2 = segunda.datos.solicitudes.find((s) => s.usuario.idUsuario === ids.RECEPTOR);
@@ -353,7 +347,6 @@ test('CU 11: alertas de caducidad próxima', async () => {
   const alertas = await api('GET', '/api/notificaciones?tipo=CADUCIDAD_PROXIMA', { token: tokens.RECEPTOR });
   assert.ok(alertas.datos.notificaciones.some((n) => n.idLote === idLote));
 
-  // No se repite el aviso al volver a ejecutar la tarea.
   const otra = await api('POST', '/api/admin/tareas/caducidades', { token: tokens.ADMIN });
   const repetidas = (await api('GET', '/api/notificaciones?tipo=CADUCIDAD_PROXIMA', { token: tokens.RECEPTOR }))
     .datos.notificaciones.filter((n) => n.idLote === idLote);
@@ -363,7 +356,6 @@ test('CU 11: alertas de caducidad próxima', async () => {
   const leidas = await api('POST', '/api/notificaciones/leidas', { token: tokens.RECEPTOR });
   assert.equal(leidas.datos.noLeidas, 0);
 
-  // Limpieza: el donante retira el lote urgente.
   const cancelado = await api('POST', `/api/lotes/${idLote}/cancelar`, { token: tokens.DONANTE });
   assert.equal(cancelado.datos.estado, 'CANCELADO');
 });

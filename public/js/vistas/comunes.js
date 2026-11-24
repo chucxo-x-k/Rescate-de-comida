@@ -1,7 +1,6 @@
 import { api } from '../api.js';
 import { $$, avisar, avisarError, html, montar, ETIQUETA_ROL } from '../ui.js';
 
-/** Calificaciones pendientes de una ruta entregada (alimentan el índice de confiabilidad). */
 export async function montarCalificaciones(contenedor, idRuta) {
   let pendientes;
   try {

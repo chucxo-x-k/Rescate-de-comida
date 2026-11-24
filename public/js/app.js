@@ -12,14 +12,13 @@ import { vistaPerfil } from './vistas/perfil.js';
 import { vistaVerificacion } from './vistas/verificacion.js';
 import { vistaVerificacionesPendientes, vistaUsuarios, vistaLotesAdmin } from './vistas/admin.js';
 
-export const INICIO_POR_ROL = {
+const INICIO_POR_ROL = {
   DONANTE: '/donante',
   RECEPTOR: '/receptor',
   VOLUNTARIO: '/voluntario',
   ADMINISTRADOR: '/admin',
 };
 
-// Mapa de navegación: pestañas inferiores por tipo de cuenta.
 const NAVEGACION = {
   DONANTE: [
     ['panel', 'Panel', '/donante'],
@@ -73,7 +72,7 @@ let limpiezas = [];
 let noLeidas = 0;
 let rutaActual = '';
 
-export function ir(ruta) {
+function ir(ruta) {
   if (location.hash === `#${ruta}`) enrutar();
   else location.hash = `#${ruta}`;
 }
@@ -85,7 +84,7 @@ function pintarInsignia() {
   insignia.textContent = noLeidas > 99 ? '99+' : String(noLeidas);
 }
 
-export function fijarNoLeidas(total) {
+function fijarNoLeidas(total) {
   noLeidas = Math.max(0, Number(total) || 0);
   pintarInsignia();
 }
@@ -132,11 +131,6 @@ async function enrutar() {
   limpiezas.forEach((fn) => fn());
   limpiezas = [];
 
-  if (ruta === '/' || ruta === '') {
-    ir(sesion.activa ? INICIO_POR_ROL[sesion.usuario.rol] : '/login');
-    return;
-  }
-
   const definicion = RUTAS.find((r) => r.patron.test(ruta));
   if (!definicion) {
     ir(sesion.activa ? INICIO_POR_ROL[sesion.usuario.rol] : '/login');
@@ -146,11 +140,7 @@ async function enrutar() {
     ir('/login');
     return;
   }
-  if (definicion.publica && sesion.activa) {
-    ir(INICIO_POR_ROL[sesion.usuario.rol]);
-    return;
-  }
-  if (definicion.roles && !definicion.roles.includes(sesion.usuario.rol)) {
+  if ((definicion.publica && sesion.activa) || (definicion.roles && !definicion.roles.includes(sesion.usuario.rol))) {
     ir(INICIO_POR_ROL[sesion.usuario.rol]);
     return;
   }
@@ -177,15 +167,13 @@ async function enrutar() {
   try {
     await definicion.vista(contexto);
   } catch (error) {
-    if (rutaActual !== ruta) return;
-    if (!sesion.activa) return;
+    if (rutaActual !== ruta || !sesion.activa) return;
     montar(contenido, html`<div class="mensaje-error">${error.message ?? 'No se pudo cargar la pantalla.'}</div>
       <button class="btn btn-bloque" id="reintentar">Reintentar</button>`);
     $('#reintentar').addEventListener('click', enrutar);
   }
 }
 
-// ---------- Sesión y tiempo real ----------
 let dejarDeEscuchar = null;
 
 export function iniciarSesionUI({ token, expira, usuario }) {

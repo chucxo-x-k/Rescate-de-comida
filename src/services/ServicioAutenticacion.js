@@ -9,7 +9,6 @@ import { ErrorApp } from '../utils/ErrorApp.js';
 import { aBooleano, aNumero, esCorreo, esTelefono, exigir, texto } from '../utils/validacion.js';
 
 const COSTO_HASH = 10;
-// Hash válido para comparar aunque el correo no exista (tiempo de respuesta uniforme).
 const HASH_FICTICIO = '$2b$10$Di.sDngurZgZTp7O6wZiF.GopSrN9p6EseM47mIAR2JF0.JEPnll2';
 
 export class ServicioAutenticacion {
@@ -25,7 +24,6 @@ export class ServicioAutenticacion {
     return existente === null;
   }
 
-  /** CU 1: Registrarse en el sistema. */
   async registrar(datos) {
     const d = {
       nombre: texto(datos.nombre),
@@ -89,7 +87,6 @@ export class ServicioAutenticacion {
     return Usuario.desdeFila(await this.repos.usuarios.buscarConDisponibilidad(idUsuario));
   }
 
-  /** CU 2: Iniciar sesión. */
   async iniciarSesion(correo, contrasena) {
     const fila = await this.repos.usuarios.buscarPorCorreo(texto(correo).toLowerCase());
     const coincide = await bcrypt.compare(String(contrasena ?? ''), fila?.contrasena_hash ?? HASH_FICTICIO);

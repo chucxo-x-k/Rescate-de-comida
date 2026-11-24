@@ -2,10 +2,6 @@ import { LoteAlimentos } from '../domain/LoteAlimentos.js';
 import { Usuario } from '../domain/Usuario.js';
 import { TipoNotificacion } from '../domain/enums.js';
 
-/**
- * CU 11 / RF Dashboard 2: detecta lotes sin reclamar próximos a vencer y
- * avisa a donantes, receptores y voluntarios cercanos (una sola vez por lote).
- */
 export class ModuloAlertas {
   constructor({ repos, notificador }) {
     this.repos = repos;
@@ -49,7 +45,6 @@ export class ModuloAlertas {
       }
 
       if (!fila.id_ruta) {
-        // Nadie lo ha aceptado: avisar a receptores en su radio con capacidad.
         for (const r of receptores) {
           if (!r.avisarCaducidades || !lote.ubicacion || !r.tieneCapacidadPara(lote.pesoKg)) continue;
           const km = r.ubicacion.distanciaKm(lote.ubicacion);
@@ -58,7 +53,6 @@ export class ModuloAlertas {
           }
         }
       } else {
-        // Ya tiene receptor pero ningún voluntario: avisar a voluntarios cercanos.
         for (const v of voluntarios) {
           if (!v.avisarCaducidades) continue;
           const cerca = !v.ubicacion || !lote.ubicacion || v.ubicacion.distanciaKm(lote.ubicacion) <= radioVoluntarios;

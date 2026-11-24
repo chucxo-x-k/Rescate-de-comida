@@ -150,9 +150,9 @@ describe('Emparejamiento geográfico', () => {
 
   test('filtra por radio, capacidad y disponibilidad, y ordena por proximidad', () => {
     const lote = new LoteAlimentos(loteBase());
-    const lejos = receptor(1, 19.4500, -99.1332);           // ~1.9 km
-    const cerca = receptor(2, 19.4340, -99.1332);           // ~0.15 km
-    const fueraDeRadio = receptor(3, 19.6000, -99.1332);    // ~18 km
+    const lejos = receptor(1, 19.4500, -99.1332);
+    const cerca = receptor(2, 19.4340, -99.1332);
+    const fueraDeRadio = receptor(3, 19.6000, -99.1332);
     const sinCapacidad = receptor(4, 19.4330, -99.1332, { capacidad_kg: 5 });
     const noRecibe = receptor(5, 19.4330, -99.1332, { recibiendo_lotes: 0 });
 

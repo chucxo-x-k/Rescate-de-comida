@@ -1,11 +1,10 @@
 import { api } from '../api.js';
 import { mapaSelector, obtenerUbicacion } from '../mapa.js';
 import {
-  $, $$, avisar, avisarError, chip, chipLote, chipVerificacion, conBoton, html, kg, limpiarErrores, montar,
+  $, $$, avisar, avisarError, chip, chipLote, chipVerificacion, conBoton, fechaIso, html, kg, limpiarErrores, montar,
   mostrarErrores, selectorFotos, textoCaducidad, vacio,
 } from '../ui.js';
 
-/** Enlace de cada tarjeta según el estado (wireframe Panel Donante). */
 function accionLote(lote) {
   if (lote.estado === 'EN_RECOLECCION') return 'Ver ruta';
   if (lote.estado === 'ENTREGADO') return 'Ver evidencia';
@@ -18,7 +17,7 @@ function etiquetaEstado(lote) {
   return chipLote(lote.estado);
 }
 
-export function tarjetaLoteDonante(lote) {
+function tarjetaLoteDonante(lote) {
   return html`
     <article class="tarjeta">
       <div class="fila-entre">
@@ -45,7 +44,6 @@ function avisoVerificacion(usuario) {
     </div>`;
 }
 
-// Wireframe "Panel Donante".
 export async function vistaPanelDonante({ contenedor, encabezado, refrescarUsuario }) {
   encabezado();
   const [usuario, datos] = await Promise.all([refrescarUsuario(), api.get('/lotes/mios')]);
@@ -65,7 +63,6 @@ export async function vistaPanelDonante({ contenedor, encabezado, refrescarUsuar
     ${lotes.length ? lotes.slice(0, 5).map(tarjetaLoteDonante) : vacio('Aún no publicas lotes. Cuando tengas excedentes, publícalos aquí.')}`);
 }
 
-// Wireframe "Mis lotes" (lista completa con filtro).
 export async function vistaMisLotes({ contenedor, encabezado }) {
   encabezado({ titulo: 'Mis lotes' });
   const { lotes } = await api.get('/lotes/mios');
@@ -96,12 +93,6 @@ export async function vistaMisLotes({ contenedor, encabezado }) {
   pintar();
 }
 
-const hoyIso = () => {
-  const d = new Date();
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-};
-
-// CU 4 · Wireframe "Publicar Lote".
 export async function vistaPublicarLote({ contenedor, encabezado, refrescarUsuario, ir, alLimpiar }) {
   encabezado({ titulo: 'Publicar lote' });
   const [usuario, { categorias }] = await Promise.all([refrescarUsuario(), api.get('/categorias')]);
@@ -137,7 +128,7 @@ export async function vistaPublicarLote({ contenedor, encabezado, refrescarUsuar
       <div class="rejilla-2">
         <div class="campo" data-campo="fecha_caducidad">
           <label for="fecha">Fecha de caducidad</label>
-          <input class="control" id="fecha" name="fechaCaducidad" type="date" min="${hoyIso()}" required>
+          <input class="control" id="fecha" name="fechaCaducidad" type="date" min="${fechaIso(new Date())}" required>
         </div>
         <div class="campo">
           <label for="hora">Hora (opcional)</label>

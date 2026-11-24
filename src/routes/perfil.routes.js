@@ -2,7 +2,6 @@ import { Router } from 'express';
 import { requiereRol } from '../middleware/auth.js';
 import { RolUsuario } from '../domain/enums.js';
 
-// CU 6: Mantener el perfil e historial.
 export function rutasPerfil(c, { autenticar }) {
   const router = Router();
   router.use(autenticar);

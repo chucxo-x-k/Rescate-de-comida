@@ -19,11 +19,10 @@ function pasosEstado(estado) {
   </div>`;
 }
 
-// Wireframe "Detalle Lote".
 export async function vistaDetalleLote({ contenedor, params, encabezado, usuario, ir, alLimpiar }) {
   encabezado({ titulo: 'Detalle del lote', atras: true });
   const lote = await api.get(`/lotes/${params[0]}`);
-  const fotos = lote.fotos.length ? lote.fotos : [];
+  const { fotos } = lote;
   const terminado = ['CANCELADO', 'CADUCADO'].includes(lote.estado);
 
   montar(contenedor, html`

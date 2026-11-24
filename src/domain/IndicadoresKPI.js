@@ -17,7 +17,6 @@ export class IndicadoresKPI {
     this.periodoDias = periodoDias;
   }
 
-  /** Raciones = kg rescatados / kg por ración (parámetro kg_por_racion). */
   static calcularRaciones(kgRescatados, kgPorRacion) {
     if (!(kgPorRacion > 0)) return 0;
     return Math.floor(Number(kgRescatados) / kgPorRacion);

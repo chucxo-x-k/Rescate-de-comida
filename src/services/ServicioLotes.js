@@ -24,7 +24,6 @@ export class ServicioLotes {
     return { umbralHoras, horasNuevo };
   }
 
-  /** CU 4: Publicar lote de alimentos. */
   async publicar(donante, datos, fotos = []) {
     if (donante.rol !== RolUsuario.DONANTE) throw ErrorApp.prohibido('Solo los donantes publican lotes.');
     if (!donante.puedeOperar()) {
@@ -69,14 +68,12 @@ export class ServicioLotes {
     return { lote: await this.detalle(idLote, donante), receptoresNotificados: sugerencias.length };
   }
 
-  /** Diagrama de clases: ServicioLotes.listarActivos(). */
   async listarActivos(usuario = null) {
     const params = await this.#parametros();
     const filas = await this.repos.lotes.listarActivos();
     return filas.map((f) => vistaLote(f, { usuario, ...params }));
   }
 
-  /** Panel del donante: contadores + "Mis lotes". */
   async misLotes(donante) {
     const params = await this.#parametros();
     const [filas, contadores] = await Promise.all([
@@ -93,7 +90,6 @@ export class ServicioLotes {
     };
   }
 
-  /** Panel del receptor: "Lotes cercanos" con radio y orden. */
   async cercanos(receptor, { radioKm = 5, orden = 'cercano' } = {}) {
     if (receptor.rol !== RolUsuario.RECEPTOR) throw ErrorApp.prohibido();
     if (!receptor.ubicacion) {
@@ -111,7 +107,6 @@ export class ServicioLotes {
     return { radioKm: radio, orden, lotes };
   }
 
-  /** Detalle del lote (wireframe "Detalle Lote"). */
   async detalle(idLote, usuario) {
     const fila = await this.repos.lotes.detalle(idLote);
     if (!fila) throw ErrorApp.noEncontrado('Lote no encontrado.');
@@ -158,7 +153,6 @@ export class ServicioLotes {
     };
   }
 
-  /** El donante (o un administrador) retira un lote aún no recolectado. */
   async cancelar(usuario, idLote) {
     const fila = await this.repos.lotes.detalle(idLote);
     if (!fila) throw ErrorApp.noEncontrado('Lote no encontrado.');

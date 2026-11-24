@@ -23,7 +23,6 @@ export class RepositorioUsuarios extends RepositorioSQL {
     return filas[0] ?? null;
   }
 
-  /** Receptores que pueden recibir lotes: activos, verificados, con ubicación y "recibiendo lotes". */
   receptoresCandidatos() {
     return this.consultar(
       `${SELECT_CON_DISPONIBILIDAD}

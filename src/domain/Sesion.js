@@ -7,7 +7,6 @@ export class Sesion {
     this.rol = rol;
   }
 
-  /** Construye la sesión a partir del payload decodificado del JWT. */
   static desdePayload(token, payload) {
     return new Sesion({
       token,

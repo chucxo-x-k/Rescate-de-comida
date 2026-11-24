@@ -1,5 +1,11 @@
 import { RepositorioSQL } from './RepositorioSQL.js';
 
+const SELECT_SOLICITUD = `
+  SELECT s.*, u.nombre AS usuario_nombre, u.correo AS usuario_correo, u.rol AS usuario_rol,
+         u.telefono AS usuario_telefono, u.direccion AS usuario_direccion
+  FROM solicitudes_verificacion s
+  JOIN usuarios u ON u.id_usuario = s.id_usuario`;
+
 export class RepositorioSolicitudes extends RepositorioSQL {
   constructor() {
     super('solicitudes_verificacion', 'id_solicitud', [
@@ -13,25 +19,11 @@ export class RepositorioSolicitudes extends RepositorioSQL {
   }
 
   pendientes() {
-    return this.consultar(
-      `SELECT s.*, u.nombre AS usuario_nombre, u.correo AS usuario_correo, u.rol AS usuario_rol,
-              u.telefono AS usuario_telefono, u.direccion AS usuario_direccion
-       FROM solicitudes_verificacion s
-       JOIN usuarios u ON u.id_usuario = s.id_usuario
-       WHERE s.estado = 'EN_REVISION'
-       ORDER BY s.fecha_envio ASC`,
-    );
+    return this.consultar(`${SELECT_SOLICITUD} WHERE s.estado = 'EN_REVISION' ORDER BY s.fecha_envio ASC`);
   }
 
   async detalle(idSolicitud) {
-    const filas = await this.consultar(
-      `SELECT s.*, u.nombre AS usuario_nombre, u.correo AS usuario_correo, u.rol AS usuario_rol,
-              u.telefono AS usuario_telefono, u.direccion AS usuario_direccion
-       FROM solicitudes_verificacion s
-       JOIN usuarios u ON u.id_usuario = s.id_usuario
-       WHERE s.id_solicitud = ? LIMIT 1`,
-      [idSolicitud],
-    );
+    const filas = await this.consultar(`${SELECT_SOLICITUD} WHERE s.id_solicitud = ? LIMIT 1`, [idSolicitud]);
     return filas[0] ?? null;
   }
 }

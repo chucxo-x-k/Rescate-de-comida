@@ -34,7 +34,6 @@ export class LoteAlimentos {
     return new LoteAlimentos(fila);
   }
 
-  /** Fecha y hora exacta de caducidad; sin hora se toma el final del día. */
   get momentoCaducidad() {
     const hora = this.horaCaducidad ? this.horaCaducidad.slice(0, 8).padEnd(8, ':00') : '23:59:59';
     return new Date(`${this.fechaCaducidad}T${hora}`);
@@ -71,7 +70,6 @@ export class LoteAlimentos {
     return this;
   }
 
-  /** Reglas del CU 4 y del requerimiento ético-legal 1 (deslinde de buena fe). */
   static validarNuevo(datos, ahora = new Date()) {
     const errores = {};
     if (!datos.nombre || datos.nombre.length > 100) errores.nombre = 'Escribe un nombre corto (máximo 100 caracteres).';

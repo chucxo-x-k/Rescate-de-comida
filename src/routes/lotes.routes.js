@@ -9,7 +9,6 @@ export function rutasLotes(c, { autenticar }) {
   const router = Router();
   router.use(autenticar);
 
-  // CU 4: Publicar lote (+ CU 5 emparejamiento automático).
   router.post(
     '/',
     requiereRol(RolUsuario.DONANTE),
@@ -36,7 +35,6 @@ export function rutasLotes(c, { autenticar }) {
     res.json(await c.lotes.detalle(idDeRuta(req.params.id), req.usuario));
   });
 
-  // Receptor acepta el lote: se genera la ruta para los voluntarios.
   router.post('/:id/aceptar', requiereRol(RolUsuario.RECEPTOR), async (req, res) => {
     res.status(201).json(await c.rutas.crearDesdeLote(req.usuario, idDeRuta(req.params.id)));
   });

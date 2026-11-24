@@ -3,7 +3,6 @@ import { iniciarSesionUI } from '../app.js';
 import { mapaSelector, obtenerUbicacion } from '../mapa.js';
 import { $, abrirModal, avisar, avisarError, conBoton, html, limpiarErrores, montar, mostrarErrores } from '../ui.js';
 
-// CU 2: Iniciar sesión.
 export async function vistaLogin({ contenedor }) {
   montar(contenedor, html`
     <section class="acceso">
@@ -53,7 +52,6 @@ const TERMINOS = html`
   </div>
   <button class="btn btn-primario btn-bloque" data-cerrar style="margin-top:16px">Entendido</button>`;
 
-// CU 1: Registrarse en el sistema.
 export async function vistaRegistro({ contenedor, encabezado, alLimpiar }) {
   encabezado({ titulo: 'Crear cuenta', atras: '/login', alertas: false });
   montar(contenedor, html`

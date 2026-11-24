@@ -45,7 +45,6 @@ export class SolicitudVerificacion {
     this.documentos = documentos.map((d) => (d instanceof DocumentoVerificacion ? d : new DocumentoVerificacion(d)));
   }
 
-  /** La constancia de organización aplica solo a receptores (diccionario, tabla 4). */
   static documentosRequeridos(rol) {
     const base = [TipoDocumento.IDENTIFICACION_OFICIAL, TipoDocumento.IDENTIFICACION_FISCAL, TipoDocumento.PERMISO_SANITARIO];
     return rol === RolUsuario.RECEPTOR ? [...base, TipoDocumento.CONSTANCIA_ORGANIZACION] : base;

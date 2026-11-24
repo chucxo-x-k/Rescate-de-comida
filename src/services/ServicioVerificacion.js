@@ -18,7 +18,6 @@ export class ServicioVerificacion {
     return new SolicitudVerificacion(filaSolicitud, documentos);
   }
 
-  /** Devuelve una solicitud en BORRADOR; si la anterior fue rechazada, crea una nueva con sus documentos. */
   async #solicitudEditable(usuario) {
     const ultima = await this.repos.solicitudes.ultimaDeUsuario(usuario.idUsuario);
     if (ultima?.estado === EstadoSolicitud.BORRADOR) return ultima.id_solicitud;
@@ -48,7 +47,6 @@ export class ServicioVerificacion {
     }
   }
 
-  /** CU 3: estado actual de la verificación del usuario. */
   async obtenerSolicitudActual(usuario) {
     this.#exigirRolConVerificacion(usuario);
     const perfil = await this.repos.usuarios.buscarPorId(usuario.idUsuario);
@@ -82,7 +80,6 @@ export class ServicioVerificacion {
     };
   }
 
-  /** CU 3, pasos 2-3: el usuario adjunta un documento. */
   async subirDocumento(usuario, tipo, archivo) {
     this.#exigirRolConVerificacion(usuario);
     if (!SolicitudVerificacion.documentosRequeridos(usuario.rol).includes(tipo)) {
@@ -109,14 +106,12 @@ export class ServicioVerificacion {
     return this.obtenerSolicitudActual(usuario);
   }
 
-  /** "Guardar": conserva el borrador (los documentos ya se guardan al subirlos). */
   async guardarBorrador(usuario) {
     this.#exigirRolConVerificacion(usuario);
     await transaccion(() => this.#solicitudEditable(usuario));
     return this.obtenerSolicitudActual(usuario);
   }
 
-  /** CU 3, pasos 3-4: enviar a revisión (diagrama: solicitar). */
   async solicitar(usuario) {
     this.#exigirRolConVerificacion(usuario);
     await transaccion(async () => {
@@ -140,7 +135,6 @@ export class ServicioVerificacion {
     return this.obtenerSolicitudActual(usuario);
   }
 
-  /** Administrador: solicitudes en revisión con sus documentos. */
   async listarPendientes() {
     const filas = await this.repos.solicitudes.pendientes();
     const documentos = await this.repos.documentos.porSolicitudes(filas.map((f) => f.id_solicitud));
@@ -170,7 +164,6 @@ export class ServicioVerificacion {
     };
   }
 
-  /** CU 3, paso 5: el administrador valida y el sistema actualiza el estatus (diagrama: actualizarEstatus). */
   async actualizarEstatus(administrador, idSolicitud, aprobar, observaciones) {
     if (administrador.rol !== RolUsuario.ADMINISTRADOR) throw ErrorApp.prohibido();
     const obs = texto(observaciones) || null;
@@ -198,7 +191,6 @@ export class ServicioVerificacion {
     return this.detalle(idSolicitud);
   }
 
-  /** Documentos privados: solo el dueño o un administrador pueden abrirlos. */
   async archivoDocumento(usuario, idDocumento) {
     const doc = await this.repos.documentos.buscarPorId(idDocumento);
     if (!doc?.url_archivo) throw ErrorApp.noEncontrado('Documento no encontrado.');
