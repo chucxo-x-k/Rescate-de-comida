@@ -10,7 +10,7 @@ export async function verDocumento(idDocumento, nombre) {
       : html`<img src="${url}" alt="${nombre}" style="width:100%;border-radius:8px">`;
     const { elemento, cerrar } = abrirModal(String(html`
       <h3>${nombre}</h3>${contenido}
-      <button class="btn btn-bloque" data-cerrar style="margin-top:12px">Cerrar</button>`), { alCerrar: () => URL.revokeObjectURL(url) });
+      <div class="acciones"><button class="btn" data-cerrar>Cerrar</button></div>`), { alCerrar: () => URL.revokeObjectURL(url) });
     elemento.querySelector('[data-cerrar]').addEventListener('click', cerrar);
   } catch (error) {
     avisarError(error);
@@ -24,7 +24,7 @@ function pasoActual(estado) {
 }
 
 export async function vistaVerificacion({ contenedor, encabezado, refrescarUsuario, sigueActiva }) {
-  encabezado({ titulo: 'Rescate de Comida', atras: '/perfil' });
+  encabezado({ titulo: 'Verificación de cuenta', atras: '/perfil' });
 
   const pintar = async (datos) => {
     const v = datos ?? (await api.get('/verificacion'));
@@ -39,33 +39,41 @@ export async function vistaVerificacion({ contenedor, encabezado, refrescarUsuar
         ${[[1, '1 · Documentos'], [2, '2 · En revisión'], [3, '3 · Verificado']].map(([n, t]) =>
           html`<span class="paso ${n === paso ? 'activo' : n < paso ? 'hecho' : ''}">${t}</span>`)}
       </div>
-      ${v.estadoVerificacion === 'VERIFICADO' ? html`<div class="aviso-caja ok" style="margin-bottom:12px">Tu cuenta está verificada.</div>` : ''}
-      ${v.estadoVerificacion === 'EN_REVISION' ? html`<div class="aviso-caja" style="margin-bottom:12px">Tus documentos están en revisión por el administrador.</div>` : ''}
-      <div class="tarjeta">
-        ${v.documentos.map((d, i) => html`
-          <div class="fila-entre" style="${i ? 'margin-top:14px' : ''}">
-            <div>
-              <strong>${d.nombre}</strong><br>
-              ${d.estado === 'CARGADO' ? chip('Cargado', 'ok') : chip('Pendiente', 'apagado')}
-            </div>
-            <div class="fila">
-              ${d.idDocumento && d.estado === 'CARGADO' ? html`<button class="btn btn-chico" data-ver="${d.idDocumento}" data-nombre="${d.nombre}">Ver</button>` : ''}
-              ${v.editable ? html`
-                <label class="btn btn-chico" style="cursor:pointer">Subir
-                  <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" data-tipo="${d.tipo}" hidden>
-                </label>` : ''}
-            </div>
-          </div>`)}
-      </div>
-      <div class="tarjeta">
-        <strong>Observaciones del administrador</strong>
-        <p class="meta">${observaciones ?? 'Si se rechaza tu solicitud, aquí verás el motivo.'}</p>
-      </div>
-      ${v.editable ? html`
-        <div class="acciones">
-          <button class="btn" id="guardar">Guardar</button>
-          <button class="btn btn-primario" id="enviar">Enviar</button>
-        </div>` : ''}`);
+      ${v.estadoVerificacion === 'VERIFICADO' ? html`<div class="aviso-caja ok" style="margin-bottom:16px">Tu cuenta está verificada.</div>` : ''}
+      ${v.estadoVerificacion === 'EN_REVISION' ? html`<div class="aviso-caja" style="margin-bottom:16px">Tus documentos están en revisión por el administrador.</div>` : ''}
+      <div class="dos-columnas">
+        <div class="tarjeta">
+          <h3>Documentos</h3>
+          ${v.documentos.map((d) => html`
+            <div class="fila-entre" style="padding:12px 0;border-top:1px solid var(--borde);margin-top:12px">
+              <div class="fila">
+                <strong>${d.nombre}</strong>
+                ${d.estado === 'CARGADO' ? chip('Cargado', 'ok') : chip('Pendiente', 'apagado')}
+              </div>
+              <div class="fila">
+                ${d.idDocumento && d.estado === 'CARGADO' ? html`<button class="btn btn-chico" data-ver="${d.idDocumento}" data-nombre="${d.nombre}">Ver</button>` : ''}
+                ${v.editable ? html`
+                  <label class="btn btn-chico" style="cursor:pointer">Subir archivo
+                    <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" data-tipo="${d.tipo}" hidden>
+                  </label>` : ''}
+              </div>
+            </div>`)}
+        </div>
+        <div class="pila">
+          <div class="tarjeta">
+            <strong>Observaciones del administrador</strong>
+            <p class="meta">${observaciones ?? 'Si se rechaza tu solicitud, aquí verás el motivo.'}</p>
+          </div>
+          ${v.editable ? html`
+            <div class="tarjeta">
+              <p class="meta" style="margin:0 0 14px">Sube todos los documentos y envíalos a revisión. Puedes guardar el borrador y continuar después.</p>
+              <div class="acciones" style="margin:0">
+                <button class="btn" id="guardar">Guardar borrador</button>
+                <button class="btn btn-primario" id="enviar">Enviar a revisión</button>
+              </div>
+            </div>` : ''}
+        </div>
+      </div>`);
 
     $$('input[data-tipo]', contenedor).forEach((entrada) =>
       entrada.addEventListener('change', async () => {

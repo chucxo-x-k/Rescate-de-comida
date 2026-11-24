@@ -51,16 +51,20 @@ export async function vistaPanelDonante({ contenedor, encabezado, refrescarUsuar
   const { contadores, lotes } = datos;
 
   montar(contenedor, html`
-    <div class="titulo-pagina"><h2>Panel del donante</h2>${chipVerificacion(usuario.estadoVerificacion)}</div>
+    <div class="titulo-pagina">
+      <div class="fila"><h2>Panel del donante</h2>${chipVerificacion(usuario.estadoVerificacion)}</div>
+      <a class="btn btn-primario" href="${verificado ? '#/donante/publicar' : '#/verificacion'}">+ Publicar lote</a>
+    </div>
     ${avisoVerificacion(usuario)}
-    <a class="btn btn-primario btn-bloque btn-grande" style="margin:14px 0" href="${verificado ? '#/donante/publicar' : '#/verificacion'}">+ Publicar lote</a>
-    <div class="rejilla-3">
+    <div class="rejilla-3" style="margin-top:20px">
       <div class="contador"><strong>${contadores.activos}</strong><span>Activos</span></div>
       <div class="contador"><strong>${contadores.entregados}</strong><span>Entregados</span></div>
       <div class="contador"><strong>${contadores.porCaducar}</strong><span>Por caducar</span></div>
     </div>
-    <div class="fila-entre"><h3 class="seccion-titulo">Mis lotes</h3>${lotes.length > 5 ? html`<a href="#/donante/lotes">Ver todos</a>` : ''}</div>
-    ${lotes.length ? lotes.slice(0, 5).map(tarjetaLoteDonante) : vacio('Aún no publicas lotes. Cuando tengas excedentes, publícalos aquí.')}`);
+    <div class="fila-entre"><h3 class="seccion-titulo">Mis lotes</h3>${lotes.length > 6 ? html`<a href="#/donante/lotes">Ver todos</a>` : ''}</div>
+    ${lotes.length
+      ? html`<div class="rejilla-tarjetas">${lotes.slice(0, 6).map(tarjetaLoteDonante)}</div>`
+      : vacio('Aún no publicas lotes. Cuando tengas excedentes, publícalos aquí.')}`);
 }
 
 export async function vistaMisLotes({ contenedor, encabezado }) {
@@ -82,7 +86,7 @@ export async function vistaMisLotes({ contenedor, encabezado }) {
       <div class="chips" style="margin:12px 0 16px">
         ${filtros.map(([clave, texto]) => html`<button class="chip ${clave === filtro ? 'chip-solido' : ''}" data-filtro="${clave}">${texto}</button>`)}
       </div>
-      ${lista.length ? lista.map(tarjetaLoteDonante) : vacio('No hay lotes en esta categoría.')}`);
+      ${lista.length ? html`<div class="rejilla-tarjetas">${lista.map(tarjetaLoteDonante)}</div>` : vacio('No hay lotes en esta categoría.')}`);
     $$('[data-filtro]', contenedor).forEach((b) =>
       b.addEventListener('click', () => {
         filtro = b.dataset.filtro;
@@ -105,61 +109,70 @@ export async function vistaPublicarLote({ contenedor, encabezado, refrescarUsuar
   }
 
   montar(contenedor, html`
+    <div class="titulo-pagina"><h2>Publicar lote</h2></div>
     <p class="subtitulo">Describe el excedente para que lo puedan rescatar.</p>
-    <form id="form-lote" novalidate>
-      <div class="campo" data-campo="nombre">
-        <label for="nombre">Nombre corto</label>
-        <input class="control" id="nombre" name="nombre" maxlength="100" placeholder="Ej. Pan dulce" required>
-      </div>
-      <div class="campo" data-campo="descripcion">
-        <label for="descripcion">Descripción del alimento</label>
-        <textarea class="control" id="descripcion" name="descripcion" placeholder="Qué es, estado y empaque" required></textarea>
-      </div>
-      <div class="campo" data-campo="id_categoria">
-        <label for="categoria">Categoría</label>
-        <select class="control" id="categoria" name="idCategoria">
-          ${categorias.map((c) => html`<option value="${c.idCategoria}">${c.nombre}</option>`)}
-        </select>
-      </div>
-      <div class="campo" data-campo="peso_kg">
-        <label for="peso">Peso estimado (kg)</label>
-        <input class="control" id="peso" name="pesoKg" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="0.0" required>
-      </div>
-      <div class="rejilla-2">
-        <div class="campo" data-campo="fecha_caducidad">
-          <label for="fecha">Fecha de caducidad</label>
-          <input class="control" id="fecha" name="fechaCaducidad" type="date" min="${fechaIso(new Date())}" required>
+    <form id="form-lote" class="tarjeta" novalidate>
+      <div class="dos-columnas">
+        <div>
+          <div class="campo" data-campo="nombre">
+            <label for="nombre">Nombre corto</label>
+            <input class="control" id="nombre" name="nombre" maxlength="100" placeholder="Ej. Pan dulce" required>
+          </div>
+          <div class="campo" data-campo="descripcion">
+            <label for="descripcion">Descripción del alimento</label>
+            <textarea class="control" id="descripcion" name="descripcion" placeholder="Qué es, estado y empaque" required></textarea>
+          </div>
+          <div class="rejilla-2">
+            <div class="campo" data-campo="id_categoria">
+              <label for="categoria">Categoría</label>
+              <select class="control" id="categoria" name="idCategoria">
+                ${categorias.map((c) => html`<option value="${c.idCategoria}">${c.nombre}</option>`)}
+              </select>
+            </div>
+            <div class="campo" data-campo="peso_kg">
+              <label for="peso">Peso estimado (kg)</label>
+              <input class="control" id="peso" name="pesoKg" type="number" min="0.1" step="0.1" inputmode="decimal" placeholder="0.0" required>
+            </div>
+          </div>
+          <div class="rejilla-2">
+            <div class="campo" data-campo="fecha_caducidad">
+              <label for="fecha">Fecha de caducidad</label>
+              <input class="control" id="fecha" name="fechaCaducidad" type="date" min="${fechaIso(new Date())}" required>
+            </div>
+            <div class="campo">
+              <label for="hora">Hora (opcional)</label>
+              <input class="control" id="hora" name="horaCaducidad" type="time">
+            </div>
+          </div>
+          <div class="campo" data-campo="fotos">
+            <span class="etiqueta">Fotografías</span>
+            <div id="fotos"></div>
+          </div>
         </div>
-        <div class="campo">
-          <label for="hora">Hora (opcional)</label>
-          <input class="control" id="hora" name="horaCaducidad" type="time">
-        </div>
-      </div>
-      <div class="campo" data-campo="direccion_recogida">
-        <label for="direccion">Ubicación de recogida</label>
-        <input class="control" id="direccion" name="direccionRecogida" maxlength="255" value="${usuario.direccion ?? ''}" placeholder="Dirección de recogida" required>
-      </div>
-      <div class="campo" data-campo="ubicacion">
-        <div class="mapa" id="mapa-lote"></div>
-        <div class="fila-entre" style="margin-top:6px">
-          <span class="ayuda" id="coordenadas">Toca el mapa para ajustar el punto de recogida.</span>
-          <button class="enlace texto-chico" type="button" id="usar-ubicacion">Usar mi ubicación</button>
-        </div>
-      </div>
-      <div class="campo" data-campo="fotos">
-        <span class="etiqueta">Fotografías</span>
-        <div id="fotos"></div>
-      </div>
-      <div class="campo" data-campo="declaracion_buena_fe">
-        <div class="caja-legal">
-          <label class="casilla"><input type="checkbox" name="declaracionBuenaFe" value="true">
-            <span>Declaro de buena fe que los alimentos son aptos para el consumo y acepto el deslinde de responsabilidad.</span></label>
-          <p class="ayuda">Los alimentos donados no pueden venderse ni cobrarse.</p>
+        <div>
+          <div class="campo" data-campo="direccion_recogida">
+            <label for="direccion">Ubicación de recogida</label>
+            <input class="control" id="direccion" name="direccionRecogida" maxlength="255" value="${usuario.direccion ?? ''}" placeholder="Dirección de recogida" required>
+          </div>
+          <div class="campo" data-campo="ubicacion">
+            <div class="mapa" id="mapa-lote"></div>
+            <div class="fila-entre" style="margin-top:6px">
+              <span class="ayuda" id="coordenadas">Haz clic en el mapa para ajustar el punto de recogida.</span>
+              <button class="enlace texto-chico" type="button" id="usar-ubicacion">Usar mi ubicación</button>
+            </div>
+          </div>
+          <div class="campo" data-campo="declaracion_buena_fe">
+            <div class="caja-legal">
+              <label class="casilla"><input type="checkbox" name="declaracionBuenaFe" value="true">
+                <span>Declaro de buena fe que los alimentos son aptos para el consumo y acepto el deslinde de responsabilidad.</span></label>
+              <p class="ayuda">Los alimentos donados no pueden venderse ni cobrarse.</p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="acciones">
         <a class="btn" href="#/donante">Cancelar</a>
-        <button class="btn btn-primario" type="submit">Publicar</button>
+        <button class="btn btn-primario" type="submit">Publicar lote</button>
       </div>
     </form>`);
 

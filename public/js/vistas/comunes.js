@@ -16,15 +16,17 @@ export async function montarCalificaciones(contenedor, idRuta) {
 
   montar(contenedor, html`
     <h3 class="seccion-titulo">Califica la entrega</h3>
-    ${pendientes.map((p) => html`
-      <div class="tarjeta" data-evaluado="${p.idUsuario}">
-        <div class="fila-entre"><strong>${p.nombre}</strong><span class="texto-suave texto-chico">${ETIQUETA_ROL[p.rol]}</span></div>
-        <div class="estrellas" role="radiogroup" aria-label="Puntuación de ${p.nombre}" style="margin:8px 0">
-          ${[1, 2, 3, 4, 5].map((n) => html`<button type="button" data-puntos="${n}" aria-label="${n} de 5">★</button>`)}
-        </div>
-        <input class="control" maxlength="255" placeholder="Comentario (opcional)">
-        <button class="btn btn-primario btn-bloque" style="margin-top:8px" disabled>Enviar calificación</button>
-      </div>`)}`);
+    <div class="rejilla-tarjetas">
+      ${pendientes.map((p) => html`
+        <div class="tarjeta" data-evaluado="${p.idUsuario}">
+          <div class="fila-entre"><strong>${p.nombre}</strong><span class="texto-suave texto-chico">${ETIQUETA_ROL[p.rol]}</span></div>
+          <div class="estrellas" role="radiogroup" aria-label="Puntuación de ${p.nombre}" style="margin:8px 0">
+            ${[1, 2, 3, 4, 5].map((n) => html`<button type="button" data-puntos="${n}" aria-label="${n} de 5">★</button>`)}
+          </div>
+          <input class="control" maxlength="255" placeholder="Comentario (opcional)">
+          <button class="btn btn-primario btn-bloque" style="margin-top:8px" disabled>Enviar calificación</button>
+        </div>`)}
+    </div>`);
 
   $$('[data-evaluado]', contenedor).forEach((tarjeta) => {
     let puntos = 0;

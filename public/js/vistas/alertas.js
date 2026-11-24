@@ -31,21 +31,27 @@ export async function vistaAlertas({ contenedor, encabezado, usuario, fijarNoLei
     if (!sigueActiva()) return;
     fijarNoLeidas(noLeidas);
     montar(contenedor, html`
-      <div class="titulo-pagina"><h2>Alertas</h2></div>
-      <div class="chips" style="margin:12px 0 16px">
+      <div class="titulo-pagina">
+        <h2>Alertas</h2>
+        ${noLeidas > 0 ? html`<button class="btn btn-chico" id="marcar-todas">Marcar todas como leídas</button>` : ''}
+      </div>
+      <div class="chips" style="margin:16px 0">
         ${PESTANAS.map(([valor, texto]) => html`<button class="chip ${valor === tipo ? 'chip-solido' : ''}" data-tipo="${valor}">${texto}</button>`)}
       </div>
-      ${notificaciones.length ? notificaciones.map((n) => {
-        const [etiqueta, variante] = ETIQUETA_TIPO[n.tipo];
-        const [href, textoEnlace] = destino(n, usuario.rol);
-        return html`
-          <article class="tarjeta ${n.leida ? '' : 'no-leida'}">
-            <div class="fila-entre">${chip(etiqueta, variante)}<span class="texto-suave texto-chico">${hace(n.fechaEnvio)}</span></div>
-            <p style="margin:10px 0 6px;font-weight:700">${n.mensaje}</p>
-            <a href="${href}" data-leer="${n.idNotificacion}"><strong>${textoEnlace}</strong></a>
-          </article>`;
-      }) : vacio('No tienes alertas.')}
-      ${noLeidas > 0 ? html`<button class="btn btn-bloque" id="marcar-todas" style="margin-top:14px">Marcar todas como leídas</button>` : ''}`);
+      ${notificaciones.length ? html`
+        <div class="bandeja">
+          ${notificaciones.map((n) => {
+            const [etiqueta, variante] = ETIQUETA_TIPO[n.tipo];
+            const [href, textoEnlace] = destino(n, usuario.rol);
+            return html`
+              <article class="bandeja-fila ${n.leida ? '' : 'no-leida'}">
+                <div class="bandeja-tipo">${chip(etiqueta, variante)}</div>
+                <p class="bandeja-mensaje">${n.mensaje}</p>
+                <span class="texto-suave texto-chico bandeja-hora">${hace(n.fechaEnvio)}</span>
+                <a class="btn btn-chico" href="${href}" data-leer="${n.idNotificacion}">${textoEnlace}</a>
+              </article>`;
+          })}
+        </div>` : vacio('No tienes alertas.')}`);
 
     $$('[data-tipo]', contenedor).forEach((b) => b.addEventListener('click', () => { tipo = b.dataset.tipo; pintar(); }));
     $$('[data-leer]', contenedor).forEach((a) =>

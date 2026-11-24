@@ -146,8 +146,8 @@ export function selectorFotos(contenedor, { maximo = 6 } = {}) {
   const fotos = [];
   montar(contenedor, html`
     <label class="zona-subida">
-      <input type="file" accept="image/jpeg,image/png,image/webp" capture="environment" multiple>
-      <span>Toca para subir o tomar fotos<br><small class="texto-suave">Máximo ${maximo} · JPG, PNG o WEBP</small></span>
+      <input type="file" accept="image/jpeg,image/png,image/webp" multiple>
+      <span>Haz clic para elegir fotos<br><small class="texto-suave">Máximo ${maximo} · JPG, PNG o WEBP</small></span>
     </label>
     <div class="fotos-previas"></div>`);
   const entrada = $('input', contenedor);

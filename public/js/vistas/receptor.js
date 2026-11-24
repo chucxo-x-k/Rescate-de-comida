@@ -9,21 +9,19 @@ const RADIOS = [2, 5, 10, 20, 50];
 
 function tarjetaLoteCercano(lote) {
   return html`
-    <article class="tarjeta">
-      <div class="tarjeta-lote">
-        ${lote.foto
-          ? html`<img class="miniatura" src="${lote.foto}" alt="" loading="lazy">`
-          : html`<div class="miniatura vacia">Foto</div>`}
-        <div>
-          <div class="fila-entre" style="align-items:flex-start">
-            <h3>${lote.nombre} · ${kg(lote.pesoKg)}</h3>
-            ${lote.urgente ? chip('Urgente', 'peligro') : lote.nuevo ? chip('Nuevo', 'ok') : ''}
-          </div>
-          <p class="meta" style="margin:2px 0 0">${lote.donante.nombre} · ${km(lote.distanciaKm)}</p>
-          <p class="meta" style="margin:0">${textoRestante(lote.horasRestantes)}</p>
+    <article class="tarjeta tarjeta-con-foto">
+      ${lote.foto
+        ? html`<img class="tarjeta-imagen" src="${lote.foto}" alt="" loading="lazy">`
+        : html`<div class="tarjeta-imagen vacia">Sin foto</div>`}
+      <div class="tarjeta-cuerpo">
+        <div class="fila-entre" style="align-items:flex-start">
+          <h3>${lote.nombre} · ${kg(lote.pesoKg)}</h3>
+          ${lote.urgente ? chip('Urgente', 'peligro') : lote.nuevo ? chip('Nuevo', 'ok') : ''}
         </div>
+        <p class="meta">${lote.donante.nombre} · ${km(lote.distanciaKm)}</p>
+        <p class="meta">${textoRestante(lote.horasRestantes)}</p>
+        <a class="btn btn-bloque" href="#/lote/${lote.idLote}">Ver lote</a>
       </div>
-      <a class="btn btn-bloque" style="margin-top:12px" href="#/lote/${lote.idLote}">Ver lote</a>
     </article>`;
 }
 
@@ -94,29 +92,36 @@ export async function vistaLotesCercanos({ contenedor, encabezado, refrescarUsua
     const resumen = `${kg(usuario.capacidadKg)} · ${usuario.horarioInicio ? `${horaCorta(usuario.horarioInicio)}–${horaCorta(usuario.horarioFin)}` : 'sin horario'} · radio ${usuario.radioCoberturaKm} km`;
 
     montar(contenedor, html`
-      <div class="titulo-pagina"><h2>Lotes cercanos</h2>${chipVerificacion(usuario.estadoVerificacion)}</div>
-      ${!verificado ? html`<div class="aviso-caja" style="margin:10px 0">Necesitas una cuenta verificada para aceptar lotes.
-        <div style="margin-top:6px"><a href="#/verificacion"><strong>Verificar organización</strong></a></div></div>` : ''}
-      <div class="rejilla-2" style="margin:12px 0">
-        <div><label class="etiqueta" for="radio">Radio</label>
-          <select class="control" id="radio">${RADIOS.map((r) => html`<option value="${r}" ${r === filtros.radio ? 'selected' : ''}>Hasta ${r} km</option>`)}</select></div>
-        <div><label class="etiqueta" for="orden">Ordenar</label>
-          <select class="control" id="orden">
-            <option value="cercano" ${filtros.orden === 'cercano' ? 'selected' : ''}>Más cercano</option>
-            <option value="caducidad" ${filtros.orden === 'caducidad' ? 'selected' : ''}>Caduca antes</option>
-          </select></div>
-      </div>
-      <div class="tarjeta" style="margin-bottom:14px">
-        <label class="casilla"><input type="checkbox" id="recibiendo" ${usuario.recibiendoLotes ? 'checked' : ''} ${verificado ? '' : 'disabled'}>
-          <span>Estoy recibiendo lotes</span></label>
-        <p class="ayuda" style="margin:6px 0 8px 30px">${resumen}</p>
-        <button class="enlace" id="editar-disponibilidad">Editar capacidad y horario</button>
-      </div>
-      ${usuario.latitud === null
-        ? html`<div class="aviso-caja">Registra tu ubicación en <a href="#/perfil"><strong>Perfil</strong></a> para ver lotes cercanos.</div>`
-        : errorLista ? html`<div class="mensaje-error">${errorLista}</div>`
-        : lista.length ? lista.map(tarjetaLoteCercano)
-        : vacio('No hay lotes disponibles en este radio. Te avisaremos cuando se publique uno cerca.')}`);
+      <div class="titulo-pagina"><div class="fila"><h2>Lotes cercanos</h2>${chipVerificacion(usuario.estadoVerificacion)}</div></div>
+      ${!verificado ? html`<div class="aviso-caja" style="margin:12px 0">Necesitas una cuenta verificada para aceptar lotes.
+        <a href="#/verificacion"><strong>Verificar organización</strong></a></div>` : ''}
+      <div class="con-lateral">
+        <div>
+          <div class="barra-filtros">
+            <div><label class="etiqueta" for="radio">Radio</label>
+              <select class="control" id="radio">${RADIOS.map((r) => html`<option value="${r}" ${r === filtros.radio ? 'selected' : ''}>Hasta ${r} km</option>`)}</select></div>
+            <div><label class="etiqueta" for="orden">Ordenar</label>
+              <select class="control" id="orden">
+                <option value="cercano" ${filtros.orden === 'cercano' ? 'selected' : ''}>Más cercano</option>
+                <option value="caducidad" ${filtros.orden === 'caducidad' ? 'selected' : ''}>Caduca antes</option>
+              </select></div>
+          </div>
+          ${usuario.latitud === null
+            ? html`<div class="aviso-caja">Registra tu ubicación en <a href="#/perfil"><strong>Perfil</strong></a> para ver lotes cercanos.</div>`
+            : errorLista ? html`<div class="mensaje-error">${errorLista}</div>`
+            : lista.length ? html`<div class="rejilla-tarjetas">${lista.map(tarjetaLoteCercano)}</div>`
+            : vacio('No hay lotes disponibles en este radio. Te avisaremos cuando se publique uno cerca.')}
+        </div>
+        <aside class="columna-fija">
+          <div class="tarjeta">
+            <h3>Disponibilidad</h3>
+            <label class="casilla" style="margin-top:12px"><input type="checkbox" id="recibiendo" ${usuario.recibiendoLotes ? 'checked' : ''} ${verificado ? '' : 'disabled'}>
+              <span>Estoy recibiendo lotes</span></label>
+            <p class="ayuda" style="margin:6px 0 12px 30px">${resumen}</p>
+            <button class="btn btn-chico btn-bloque" id="editar-disponibilidad">Editar capacidad y horario</button>
+          </div>
+        </aside>
+      </div>`);
 
     $('#radio').addEventListener('change', (e) => { filtros.radio = Number(e.target.value); pintar(); });
     $('#orden').addEventListener('change', (e) => { filtros.orden = e.target.value; pintar(); });
@@ -169,8 +174,8 @@ export async function vistaRecepciones({ contenedor, encabezado, alLimpiar, sigu
       <div class="titulo-pagina"><h2>Mis recepciones</h2></div>
       <p class="subtitulo">Lotes que aceptaste y su estado de entrega.</p>
       <h3 class="seccion-titulo">En curso</h3>
-      ${activas.length ? activas.map(tarjetaRecepcion) : vacio('No tienes recepciones en curso.')}
-      ${cerradas.length ? html`<h3 class="seccion-titulo">Anteriores</h3>${cerradas.map(tarjetaRecepcion)}` : ''}`);
+      ${activas.length ? html`<div class="rejilla-tarjetas">${activas.map(tarjetaRecepcion)}</div>` : vacio('No tienes recepciones en curso.')}
+      ${cerradas.length ? html`<h3 class="seccion-titulo">Anteriores</h3><div class="rejilla-tarjetas">${cerradas.map(tarjetaRecepcion)}</div>` : ''}`);
   };
   await pintar();
   alLimpiar(escuchar((tipo) => { if (tipo === 'notificacion') pintar().catch(() => {}); }));

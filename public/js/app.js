@@ -1,7 +1,7 @@
 import { api } from './api.js';
 import { sesion } from './sesion.js';
 import { conectar, desconectar, escuchar } from './tiempoReal.js';
-import { $, ICONOS, avisar, html, montar } from './ui.js';
+import { $, ETIQUETA_ROL, ICONOS, avisar, html, montar } from './ui.js';
 import { vistaLogin, vistaRegistro } from './vistas/acceso.js';
 import { vistaPanelDonante, vistaPublicarLote, vistaMisLotes } from './vistas/donante.js';
 import { vistaDetalleLote } from './vistas/lote.js';
@@ -42,7 +42,13 @@ const NAVEGACION = {
     ['verificar', 'Verificar', '/admin'],
     ['usuarios', 'Usuarios', '/admin/usuarios'],
     ['lotes', 'Lotes', '/admin/lotes'],
+    ['perfil', 'Perfil', '/perfil'],
   ],
+};
+
+const fechaDeHoy = () => {
+  const texto = new Date().toLocaleDateString('es-MX', { weekday: 'long', day: 'numeric', month: 'long' });
+  return texto.charAt(0).toUpperCase() + texto.slice(1);
 };
 
 const RUTAS = [
@@ -89,13 +95,13 @@ function fijarNoLeidas(total) {
   pintarInsignia();
 }
 
-function encabezado({ titulo = 'Rescate de Comida', atras = null, alertas = true } = {}) {
+function encabezado({ titulo = null, atras = null, alertas = true } = {}) {
   barra.hidden = false;
   montar(barra, html`
-    ${atras ? html`<button class="atras" type="button" aria-label="Regresar">←</button>` : ''}
-    <h1>${titulo}</h1>
+    ${atras ? html`<button class="atras" type="button" aria-label="Regresar">← Regresar</button>` : ''}
+    <h1 class="${titulo ? '' : 'barra-fecha'}">${titulo ?? fechaDeHoy()}</h1>
     ${alertas && sesion.activa
-      ? html`<a class="btn-alertas" href="#/alertas">Alertas<span id="insignia-alertas" class="insignia" hidden></span></a>`
+      ? html`<a class="btn-alertas" href="#/alertas">${ICONOS.alertas}<span>Alertas</span><span id="insignia-alertas" class="insignia" hidden></span></a>`
       : ''}`);
   if (atras) {
     $('.atras', barra).addEventListener('click', () => {
@@ -113,10 +119,20 @@ function pintarNavegacion(rol, pestana) {
     return;
   }
   navegacion.hidden = false;
-  montar(navegacion, opciones.map(([clave, texto, ruta]) => html`
-    <a href="#${ruta}" class="${clave === pestana ? 'activo' : ''}" aria-current="${clave === pestana ? 'page' : 'false'}">
-      ${ICONOS[clave] ?? ICONOS.panel}<span>${texto}</span>
-    </a>`));
+  montar(navegacion, html`
+    <a class="marca-lateral" href="#${INICIO_POR_ROL[rol]}"><img src="/img/logo.svg" alt=""><span>Rescate de Comida</span></a>
+    <div class="menu">
+      ${opciones.map(([clave, texto, ruta]) => html`
+        <a href="#${ruta}" class="${clave === pestana ? 'activo' : ''}" aria-current="${clave === pestana ? 'page' : 'false'}">
+          ${ICONOS[clave] ?? ICONOS.panel}<span>${texto}</span>
+        </a>`)}
+    </div>
+    <div class="usuario-lateral">
+      <strong>${sesion.usuario.nombre}</strong>
+      <span>${ETIQUETA_ROL[rol]}</span>
+      <button class="btn-salir" type="button" id="cerrar-sesion-lateral">Cerrar sesión</button>
+    </div>`);
+  $('#cerrar-sesion-lateral').addEventListener('click', cerrarSesionUI);
 }
 
 async function refrescarUsuario() {
@@ -169,7 +185,7 @@ async function enrutar() {
   } catch (error) {
     if (rutaActual !== ruta || !sesion.activa) return;
     montar(contenido, html`<div class="mensaje-error">${error.message ?? 'No se pudo cargar la pantalla.'}</div>
-      <button class="btn btn-bloque" id="reintentar">Reintentar</button>`);
+      <button class="btn" id="reintentar">Reintentar</button>`);
     $('#reintentar').addEventListener('click', enrutar);
   }
 }
@@ -182,7 +198,7 @@ export function iniciarSesionUI({ token, expira, usuario }) {
   ir(INICIO_POR_ROL[usuario.rol]);
 }
 
-export function cerrarSesionUI() {
+function cerrarSesionUI() {
   sesion.cerrar();
   desconectar();
   dejarDeEscuchar?.();

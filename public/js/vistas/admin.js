@@ -14,22 +14,30 @@ export async function vistaVerificacionesPendientes({ contenedor, encabezado, al
     const { solicitudes } = await api.get('/admin/verificaciones');
     if (!sigueActiva()) return;
     if (!solicitudes.some((s) => s.idSolicitud === abierta)) abierta = solicitudes[0]?.idSolicitud ?? null;
+    const s = solicitudes.find((x) => x.idSolicitud === abierta);
 
     montar(contenedor, html`
       <div class="titulo-pagina"><h2>Verificaciones pendientes</h2></div>
       <p class="subtitulo">${solicitudes.length} solicitud${solicitudes.length === 1 ? '' : 'es'} en revisión.</p>
-      ${solicitudes.length ? solicitudes.map((s) => s.idSolicitud === abierta
-        ? html`
-          <article class="tarjeta destacada">
+      ${s ? html`
+        <div class="maestro-detalle">
+          <div class="lista-seleccion">
+            ${solicitudes.map((x) => html`
+              <article class="tarjeta seleccionable ${x.idSolicitud === abierta ? 'seleccionada' : ''}" data-abrir="${x.idSolicitud}">
+                <div class="fila-entre"><h3>${x.usuario.nombre}</h3>${chip(ETIQUETA_ROL[x.usuario.rol])}</div>
+                <p class="meta">Enviada ${hace(x.fechaEnvio).toLowerCase()}</p>
+              </article>`)}
+          </div>
+          <article class="tarjeta destacada columna-fija">
             <div class="fila-entre"><h3>${s.usuario.nombre}</h3>${chip(ETIQUETA_ROL[s.usuario.rol])}</div>
             <p class="meta">${s.usuario.correo} · ${s.usuario.telefono}</p>
             <p class="meta">${s.usuario.direccion} · Enviada ${hace(s.fechaEnvio).toLowerCase()}</p>
-            <div style="margin-top:12px">
+            <div style="margin-top:14px">
               ${s.documentos.map((d) => html`
-                <div class="fila-entre" style="padding:8px 0;border-top:1px solid var(--borde)">
+                <div class="fila-entre" style="padding:10px 0;border-top:1px solid var(--borde)">
                   <span>${d.nombre}</span>
                   ${d.estado === 'CARGADO'
-                    ? html`<button class="btn btn-chico" data-ver="${d.idDocumento}" data-nombre="${d.nombre}">Ver</button>`
+                    ? html`<button class="btn btn-chico" data-ver="${d.idDocumento}" data-nombre="${d.nombre}">Ver documento</button>`
                     : chip('Falta', 'peligro')}
                 </div>`)}
             </div>
@@ -41,13 +49,9 @@ export async function vistaVerificacionesPendientes({ contenedor, encabezado, al
               <button class="btn btn-peligro" data-resolver="rechazar">Rechazar</button>
               <button class="btn btn-primario" data-resolver="aprobar">Aprobar</button>
             </div>
-          </article>`
-        : html`
-          <article class="tarjeta">
-            <div class="fila-entre"><h3>${s.usuario.nombre}</h3>${chip(ETIQUETA_ROL[s.usuario.rol])}</div>
-            <button class="enlace" style="margin-top:8px" data-abrir="${s.idSolicitud}">Revisar</button>
-          </article>`)
-      : html`<div class="vacio">No hay verificaciones pendientes.</div>`}`);
+          </article>
+        </div>`
+      : vacio('No hay verificaciones pendientes.')}`);
 
     $$('[data-abrir]', contenedor).forEach((b) => b.addEventListener('click', () => { abierta = Number(b.dataset.abrir); pintar(); }));
     $$('[data-ver]', contenedor).forEach((b) => b.addEventListener('click', () => verDocumento(b.dataset.ver, b.dataset.nombre)));
@@ -82,28 +86,38 @@ export async function vistaUsuarios({ contenedor, encabezado, usuario: yo, sigue
 
   montar(contenedor, html`
     <div class="titulo-pagina"><h2>Usuarios</h2></div>
-    <div class="rejilla-2" style="margin:12px 0 14px">
-      <input class="control" id="buscar" type="search" placeholder="Nombre o correo">
-      <select class="control" id="rol">
-        <option value="">Todos los roles</option>
-        ${Object.entries(ETIQUETA_ROL).map(([v, t]) => html`<option value="${v}">${t}</option>`)}
-      </select>
+    <div class="barra-filtros">
+      <div class="filtro-ancho"><label class="etiqueta" for="buscar">Buscar</label>
+        <input class="control" id="buscar" type="search" placeholder="Nombre o correo"></div>
+      <div><label class="etiqueta" for="rol">Rol</label>
+        <select class="control" id="rol">
+          <option value="">Todos los roles</option>
+          ${Object.entries(ETIQUETA_ROL).map(([v, t]) => html`<option value="${v}">${t}</option>`)}
+        </select></div>
     </div>
     <div id="lista"></div>`);
 
   const pintarLista = async () => {
     const { usuarios } = await api.get('/admin/usuarios', filtros);
     if (!sigueActiva()) return;
-    montar($('#lista'), usuarios.length ? usuarios.map((u) => html`
-      <article class="tarjeta">
-        <div class="fila-entre"><h3>${u.nombre}</h3>${chip(ETIQUETA_ROL[u.rol])}</div>
-        <p class="meta">${u.correo} · ${u.telefono}</p>
-        <div class="fila-entre" style="margin-top:10px">
-          <div class="fila">${u.requiereVerificacion ? chipVerificacion(u.estadoVerificacion) : ''}
-            ${u.activo ? chip('Activa', 'ok') : chip('Desactivada', 'peligro')}</div>
-          ${u.idUsuario !== yo.idUsuario ? html`<button class="btn btn-chico ${u.activo ? 'btn-peligro' : ''}" data-activo="${u.activo ? 0 : 1}" data-id="${u.idUsuario}">${u.activo ? 'Desactivar' : 'Reactivar'}</button>` : ''}
-        </div>
-      </article>`) : vacio('Sin resultados.'));
+    montar($('#lista'), usuarios.length ? html`
+      <div class="tabla-contenedor">
+        <table class="tabla">
+          <thead><tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Rol</th><th>Verificación</th><th>Cuenta</th><th></th></tr></thead>
+          <tbody>
+            ${usuarios.map((u) => html`
+              <tr>
+                <td><strong>${u.nombre}</strong></td>
+                <td>${u.correo}</td>
+                <td>${u.telefono}</td>
+                <td>${ETIQUETA_ROL[u.rol]}</td>
+                <td>${u.requiereVerificacion ? chipVerificacion(u.estadoVerificacion) : html`<span class="texto-suave">—</span>`}</td>
+                <td>${u.activo ? chip('Activa', 'ok') : chip('Desactivada', 'peligro')}</td>
+                <td class="derecha">${u.idUsuario !== yo.idUsuario ? html`<button class="btn btn-chico ${u.activo ? 'btn-peligro' : ''}" data-activo="${u.activo ? 0 : 1}" data-id="${u.idUsuario}">${u.activo ? 'Desactivar' : 'Reactivar'}</button>` : ''}</td>
+              </tr>`)}
+          </tbody>
+        </table>
+      </div>` : vacio('Sin resultados.'));
 
     $$('[data-id]', contenedor).forEach((b) =>
       b.addEventListener('click', async () => {
@@ -136,18 +150,29 @@ export async function vistaLotesAdmin({ contenedor, encabezado, sigueActiva }) {
     const { lotes } = await api.get('/admin/lotes', { estado });
     if (!sigueActiva()) return;
     montar(contenedor, html`
-      <div class="titulo-pagina"><h2>Lotes</h2></div>
-      <div class="chips" style="margin:12px 0">
+      <div class="titulo-pagina"><h2>Lotes</h2><button class="btn btn-chico" id="tarea">Verificar caducidades ahora</button></div>
+      <div class="chips" style="margin:16px 0">
         ${ESTADOS.map(([v, t]) => html`<button class="chip ${v === estado ? 'chip-solido' : ''}" data-estado="${v}">${t}</button>`)}
       </div>
-      <button class="btn btn-bloque btn-chico" id="tarea" style="margin-bottom:14px">Verificar caducidades ahora</button>
-      ${lotes.length ? lotes.map((l) => html`
-        <article class="tarjeta">
-          <div class="fila-entre"><h3>${l.nombre} · ${kg(l.pesoKg)}</h3>${l.estado === 'PUBLICADO' && l.urgente ? chip('Urgente', 'peligro') : chipLote(l.estado)}</div>
-          <p class="meta">${l.donante.nombre} · ${l.categoria}</p>
-          <p class="meta">${textoCaducidad(l.fechaCaducidad, l.horaCaducidad)}${l.ruta?.receptorNombre ? ` · Para ${l.ruta.receptorNombre}` : ''}</p>
-          <p style="margin:10px 0 0"><a href="#/lote/${l.idLote}"><strong>Ver detalle</strong></a></p>
-        </article>`) : vacio('No hay lotes con ese estado.')}`);
+      ${lotes.length ? html`
+        <div class="tabla-contenedor">
+          <table class="tabla">
+            <thead><tr><th>Lote</th><th>Peso</th><th>Donante</th><th>Categoría</th><th>Caducidad</th><th>Receptor</th><th>Estado</th><th></th></tr></thead>
+            <tbody>
+              ${lotes.map((l) => html`
+                <tr>
+                  <td><strong>${l.nombre}</strong></td>
+                  <td>${kg(l.pesoKg)}</td>
+                  <td>${l.donante.nombre}</td>
+                  <td>${l.categoria}</td>
+                  <td>${textoCaducidad(l.fechaCaducidad, l.horaCaducidad)}</td>
+                  <td>${l.ruta?.receptorNombre ?? html`<span class="texto-suave">—</span>`}</td>
+                  <td>${l.estado === 'PUBLICADO' && l.urgente ? chip('Urgente', 'peligro') : chipLote(l.estado)}</td>
+                  <td class="derecha"><a class="btn btn-chico" href="#/lote/${l.idLote}">Ver detalle</a></td>
+                </tr>`)}
+            </tbody>
+          </table>
+        </div>` : vacio('No hay lotes con ese estado.')}`);
 
     $$('[data-estado]', contenedor).forEach((b) => b.addEventListener('click', () => { estado = b.dataset.estado; pintar(); }));
     $('#tarea').addEventListener('click', async (e) => {

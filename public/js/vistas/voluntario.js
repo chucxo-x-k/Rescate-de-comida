@@ -19,7 +19,7 @@ export async function vistaPanelKpis({ contenedor, encabezado, sigueActiva }) {
     const maximo = Math.max(1, ...k.kgPorDia.map((d) => d.kg));
     montar(contenedor, html`
       <div class="titulo-pagina"><h2>Panel de control</h2></div>
-      <div class="rejilla-2" style="margin:12px 0 14px">
+      <div class="barra-filtros">
         <div><label class="etiqueta" for="periodo">Periodo</label>
           <select class="control" id="periodo">
             ${[[7, 'Últimos 7 días'], [30, 'Últimos 30 días'], [90, 'Últimos 90 días'], [365, 'Último año']].map(([v, t]) =>
@@ -31,13 +31,14 @@ export async function vistaPanelKpis({ contenedor, encabezado, sigueActiva }) {
             ${categorias.map((c) => html`<option value="${c.idCategoria}" ${String(c.idCategoria) === filtros.categoria ? 'selected' : ''}>${c.nombre}</option>`)}
           </select></div>
       </div>
-      <div class="rejilla-2">
+      <div class="rejilla-4">
         <div class="contador"><strong>${k.kgRescatados}</strong><span>Kg rescatados</span></div>
         <div class="contador"><strong>${k.racionesEstimadas}</strong><span>Raciones estimadas</span></div>
         <div class="contador"><strong>${k.vencidosEvitados}</strong><span>Vencidos evitados</span></div>
         <div class="contador"><strong>${k.tiempoMedioTrasladoMin} min</strong><span>Traslado medio</span></div>
       </div>
-      <div class="tarjeta" style="margin-top:14px">
+      <div class="rejilla-2" style="margin-top:20px;align-items:start">
+      <div class="tarjeta">
         <h3>Kg rescatados por día</h3>
         <div class="grafica" role="img" aria-label="Kilogramos rescatados en los últimos 7 días">
           ${k.kgPorDia.map((d) => html`<div class="barra-dato" style="height:${Math.round((d.kg / maximo) * 100)}%" title="${d.dia}: ${d.kg} kg"><span>${d.kg ? Math.round(d.kg) : ''}</span></div>`)}
@@ -54,6 +55,7 @@ export async function vistaPanelKpis({ contenedor, encabezado, sigueActiva }) {
                 ${chipRuta(r.estado)}
               </li>`)}</ul>`
           : html`<p class="texto-suave">No hay rutas en curso.</p>`}
+      </div>
       </div>`);
     $('#periodo').addEventListener('change', (e) => { filtros.dias = Number(e.target.value); pintar(); });
     $('#categoria').addEventListener('change', (e) => { filtros.categoria = e.target.value; pintar(); });
@@ -83,14 +85,15 @@ export async function vistaRutasDisponibles({ contenedor, encabezado, ir, alLimp
     const [{ rutas }, { ruta: activa }] = await Promise.all([api.get('/rutas/disponibles', filtros), api.get('/rutas/activa')]);
     if (!sigueActiva()) return;
     if (!rutas.some((r) => r.idRuta === seleccionada)) seleccionada = rutas[0]?.idRuta ?? null;
+    const elegida = rutas.find((r) => r.idRuta === seleccionada);
     mapa?.destruir();
     mapa = null;
 
     montar(contenedor, html`
       <div class="titulo-pagina"><h2>Rutas disponibles</h2></div>
-      ${activa ? html`<div class="aviso-caja" style="margin:10px 0">Ya tienes una ruta activa: ${activa.lote.nombre}.
-        <div style="margin-top:6px"><a href="#/voluntario/ruta"><strong>Ir a mi ruta</strong></a></div></div>` : ''}
-      <div class="rejilla-2" style="margin:12px 0 14px">
+      ${activa ? html`<div class="aviso-caja" style="margin:12px 0">Ya tienes una ruta activa: ${activa.lote.nombre}.
+        <a href="#/voluntario/ruta"><strong>Ir a mi ruta</strong></a></div>` : ''}
+      <div class="barra-filtros">
         <div><label class="etiqueta" for="zona">Zona</label>
           <select class="control" id="zona">${ZONAS.map(([v, t]) => html`<option value="${v}" ${v === filtros.radio ? 'selected' : ''}>${t}</option>`)}</select></div>
         <div><label class="etiqueta" for="orden">Ordenar</label>
@@ -99,26 +102,28 @@ export async function vistaRutasDisponibles({ contenedor, encabezado, ir, alLimp
             <option value="distancia" ${filtros.orden === 'distancia' ? 'selected' : ''}>Distancia</option>
           </select></div>
       </div>
-      ${rutas.length ? rutas.map((r) => r.idRuta === seleccionada
-        ? html`
-          <article class="tarjeta destacada">
-            <div class="fila-entre"><h3>${r.lote.nombre} · ${kg(r.lote.pesoKg)}</h3>${r.urgente ? chip('Urgente', 'peligro') : ''}</div>
-            <p class="meta">${r.recoleccion.nombre} → ${r.entrega.nombre}${r.distanciaKm !== null ? ` · ${km(r.distanciaKm)}` : ''}</p>
-            <p class="meta">${textoRestante(r.lote.horasRestantes)}${r.distanciaVoluntarioKm !== null ? ` · a ${km(r.distanciaVoluntarioKm)} de ti` : ''}</p>
-            <div class="mapa" id="mapa-ruta" style="margin-top:10px"></div>
-            ${paradas(r)}
-            <button class="btn btn-primario btn-bloque btn-grande" style="margin-top:14px" data-aceptar="${r.idRuta}" ${activa ? 'disabled' : ''}>Aceptar ruta</button>
+      ${elegida ? html`
+        <div class="maestro-detalle">
+          <div class="lista-seleccion">
+            ${rutas.map((r) => html`
+              <article class="tarjeta seleccionable ${r.idRuta === seleccionada ? 'seleccionada' : ''}" data-seleccionar="${r.idRuta}">
+                <div class="fila-entre"><h3>${r.lote.nombre} · ${kg(r.lote.pesoKg)}</h3>${r.urgente ? chip('Urgente', 'peligro') : ''}</div>
+                <p class="meta">${r.recoleccion.nombre} → ${r.entrega.nombre}</p>
+                <p class="meta">${r.distanciaKm !== null ? `${km(r.distanciaKm)} · ` : ''}${textoRestante(r.lote.horasRestantes)}</p>
+              </article>`)}
+          </div>
+          <article class="tarjeta destacada columna-fija">
+            <div class="fila-entre"><h3>${elegida.lote.nombre} · ${kg(elegida.lote.pesoKg)}</h3>${elegida.urgente ? chip('Urgente', 'peligro') : ''}</div>
+            <p class="meta">${elegida.recoleccion.nombre} → ${elegida.entrega.nombre}${elegida.distanciaKm !== null ? ` · ${km(elegida.distanciaKm)}` : ''}</p>
+            <p class="meta">${textoRestante(elegida.lote.horasRestantes)}${elegida.distanciaVoluntarioKm !== null ? ` · a ${km(elegida.distanciaVoluntarioKm)} de ti` : ''}</p>
+            <div class="mapa" id="mapa-ruta" style="margin-top:12px"></div>
+            ${paradas(elegida)}
+            <button class="btn btn-primario btn-bloque btn-grande" style="margin-top:16px" data-aceptar="${elegida.idRuta}" ${activa ? 'disabled' : ''}>Aceptar ruta</button>
             <p class="ayuda centro">Al aceptar verás instrucciones y contactos.</p>
-          </article>`
-        : html`
-          <article class="tarjeta" data-seleccionar="${r.idRuta}" style="cursor:pointer">
-            <div class="fila-entre"><h3>${r.lote.nombre} · ${kg(r.lote.pesoKg)}</h3>${r.urgente ? chip('Urgente', 'peligro') : ''}</div>
-            <p class="meta">${r.recoleccion.nombre} → ${r.entrega.nombre}</p>
-            <p class="meta">${r.distanciaKm !== null ? `${km(r.distanciaKm)} · ` : ''}${textoRestante(r.lote.horasRestantes)}</p>
-          </article>`)
+          </article>
+        </div>`
       : vacio('No hay rutas disponibles por ahora. Te avisaremos cuando un receptor acepte un lote cerca de ti.')}`);
 
-    const elegida = rutas.find((r) => r.idRuta === seleccionada);
     if (elegida) {
       mapa = mapaPuntos($('#mapa-ruta'), [
         { latitud: elegida.recoleccion.latitud, longitud: elegida.recoleccion.longitud, etiqueta: '1 · Recolección' },
@@ -161,11 +166,10 @@ function pasosRuta(paso) {
 
 function pintarEntregaTerminada(contenedor, idRuta, nombreLote) {
   montar(contenedor, html`
-    <div class="titulo-pagina"><h2>Mi ruta activa</h2></div>
+    <div class="titulo-pagina"><h2>Mi ruta activa</h2><a class="btn btn-primario" href="#/voluntario/rutas">Buscar otra ruta</a></div>
     ${pasosRuta(4)}
     <div class="aviso-caja ok">¡Entrega registrada! ${nombreLote} llegó a su destino. Gracias por tu apoyo.</div>
-    <div id="calificaciones"></div>
-    <a class="btn btn-primario btn-bloque" style="margin-top:16px" href="#/voluntario/rutas">Buscar otra ruta</a>`);
+    <div id="calificaciones"></div>`);
   montarCalificaciones($('#calificaciones', contenedor), idRuta);
 }
 
@@ -175,9 +179,8 @@ export async function vistaMiRuta({ contenedor, encabezado, ir, alLimpiar }) {
 
   if (!ruta) {
     montar(contenedor, html`
-      <div class="titulo-pagina"><h2>Mi ruta activa</h2></div>
-      ${vacio('No tienes una ruta activa.')}
-      <a class="btn btn-primario btn-bloque" style="margin-top:14px" href="#/voluntario/rutas">Ver rutas disponibles</a>`);
+      <div class="titulo-pagina"><h2>Mi ruta activa</h2><a class="btn btn-primario" href="#/voluntario/rutas">Ver rutas disponibles</a></div>
+      ${vacio('No tienes una ruta activa.')}`);
     return;
   }
 
@@ -187,27 +190,14 @@ export async function vistaMiRuta({ contenedor, encabezado, ir, alLimpiar }) {
   alLimpiar(() => mapa?.destruir());
 
   montar(contenedor, html`
-    <div class="titulo-pagina"><h2>Mi ruta activa</h2></div>
-    <p class="texto-suave" style="margin:2px 0 8px">${ruta.lote.nombre} · ${kg(ruta.lote.pesoKg)} · ${textoRestante(ruta.lote.horasRestantes)}</p>
-    ${chip(ETIQUETA_ESTADO_ACTIVA[ruta.estado] ?? ruta.estado, enCamino ? 'info' : 'aviso')}
+    <div class="titulo-pagina">
+      <div class="fila"><h2>Mi ruta activa</h2>${chip(ETIQUETA_ESTADO_ACTIVA[ruta.estado] ?? ruta.estado, enCamino ? 'info' : 'aviso')}</div>
+    </div>
+    <p class="subtitulo">${ruta.lote.nombre} · ${kg(ruta.lote.pesoKg)} · ${textoRestante(ruta.lote.horasRestantes)}</p>
     ${pasosRuta(ruta.paso)}
 
-    <div class="tarjeta">
-      <div class="fila-entre"><strong>Resumen de la ruta</strong><button class="enlace" id="ver-resumen">Ver</button></div>
-      <div id="resumen" hidden>
-        <div class="mapa" id="mapa-activa" style="margin-top:10px"></div>
-        ${paradas(ruta)}
-        <div class="rejilla-2" style="margin-top:12px">
-          <div class="texto-chico"><strong>Donante</strong><br>${ruta.recoleccion.nombre}<br>
-            ${ruta.recoleccion.telefono ? html`<a href="tel:${ruta.recoleccion.telefono}">${ruta.recoleccion.telefono}</a>` : ''}<br>
-            <a href="${enlaceMaps(ruta.recoleccion.latitud, ruta.recoleccion.longitud)}" target="_blank" rel="noopener">Cómo llegar</a></div>
-          <div class="texto-chico"><strong>Receptor</strong><br>${ruta.entrega.nombre}<br>
-            ${ruta.entrega.telefono ? html`<a href="tel:${ruta.entrega.telefono}">${ruta.entrega.telefono}</a>` : ''}<br>
-            ${ruta.entrega.latitud !== null ? html`<a href="${enlaceMaps(ruta.entrega.latitud, ruta.entrega.longitud)}" target="_blank" rel="noopener">Cómo llegar</a>` : ''}</div>
-        </div>
-      </div>
-    </div>
-
+    <div class="dos-columnas">
+    <div class="pila">
     <form class="tarjeta" id="form-checklist" novalidate>
       <div class="fila-entre"><h3>Checklist de inocuidad</h3>${enCamino ? chip('Aprobado', 'ok') : ''}</div>
       <div style="margin-top:10px" class="pila">
@@ -222,8 +212,10 @@ export async function vistaMiRuta({ contenedor, encabezado, ir, alLimpiar }) {
       </div>
       <p class="ayuda">Todos los puntos críticos deben estar aprobados.</p>
       ${enCamino ? '' : html`
-        <button class="btn btn-primario btn-bloque" type="submit">Validar checklist y confirmar recolección</button>
-        <button class="btn btn-bloque" type="button" id="incumplimiento" style="margin-top:8px">Reportar incumplimiento</button>`}
+        <div class="acciones">
+          <button class="btn btn-peligro" type="button" id="incumplimiento">Reportar incumplimiento</button>
+          <button class="btn btn-primario" type="submit">Validar checklist y confirmar recolección</button>
+        </div>`}
     </form>
 
     <form class="tarjeta ${enCamino ? '' : 'deshabilitada'}" id="form-evidencia" novalidate aria-disabled="${enCamino ? 'false' : 'true'}">
@@ -238,20 +230,31 @@ export async function vistaMiRuta({ contenedor, encabezado, ir, alLimpiar }) {
         <label for="codigo">O código de confirmación</label>
         <input class="control" id="codigo" name="codigo" inputmode="numeric" maxlength="6" placeholder="Código del receptor">
       </div>
-      <button class="btn btn-primario btn-bloque" type="submit" ${enCamino ? '' : 'disabled'}>Confirmar entrega</button>
-    </form>`);
+      <div class="acciones">
+        <button class="btn btn-primario" type="submit" ${enCamino ? '' : 'disabled'}>Confirmar entrega</button>
+      </div>
+    </form>
+    </div>
 
-  $('#ver-resumen').addEventListener('click', (e) => {
-    const caja = $('#resumen');
-    caja.hidden = !caja.hidden;
-    e.currentTarget.textContent = caja.hidden ? 'Ver' : 'Ocultar';
-    if (!caja.hidden && !mapa) {
-      mapa = mapaPuntos($('#mapa-activa'), [
-        { latitud: ruta.recoleccion.latitud, longitud: ruta.recoleccion.longitud, etiqueta: '1 · Recolección' },
-        { latitud: ruta.entrega.latitud, longitud: ruta.entrega.longitud, etiqueta: '2 · Entrega' },
-      ], { linea: true });
-    }
-  });
+    <div class="tarjeta columna-fija">
+      <strong>Resumen de la ruta</strong>
+      <div class="mapa" id="mapa-activa" style="margin-top:12px"></div>
+      ${paradas(ruta)}
+      <div class="rejilla-2" style="margin-top:14px">
+        <div class="texto-chico"><strong>Donante</strong><br>${ruta.recoleccion.nombre}<br>
+          ${ruta.recoleccion.telefono ? html`<a href="tel:${ruta.recoleccion.telefono}">${ruta.recoleccion.telefono}</a>` : ''}<br>
+          <a href="${enlaceMaps(ruta.recoleccion.latitud, ruta.recoleccion.longitud)}" target="_blank" rel="noopener">Cómo llegar</a></div>
+        <div class="texto-chico"><strong>Receptor</strong><br>${ruta.entrega.nombre}<br>
+          ${ruta.entrega.telefono ? html`<a href="tel:${ruta.entrega.telefono}">${ruta.entrega.telefono}</a>` : ''}<br>
+          ${ruta.entrega.latitud !== null ? html`<a href="${enlaceMaps(ruta.entrega.latitud, ruta.entrega.longitud)}" target="_blank" rel="noopener">Cómo llegar</a>` : ''}</div>
+      </div>
+    </div>
+    </div>`);
+
+  mapa = mapaPuntos($('#mapa-activa'), [
+    { latitud: ruta.recoleccion.latitud, longitud: ruta.recoleccion.longitud, etiqueta: '1 · Recolección' },
+    { latitud: ruta.entrega.latitud, longitud: ruta.entrega.longitud, etiqueta: '2 · Entrega' },
+  ], { linea: true });
 
   const datosChecklist = (observaciones) => {
     const marcados = $$('input[name=criterio]:checked', contenedor).map((i) => i.value);

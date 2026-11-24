@@ -16,7 +16,8 @@ function crearBase(elemento, centro, zoom) {
     attribution: ATRIBUCION,
     referrerPolicy: 'strict-origin-when-cross-origin',
   }).addTo(mapa);
-  setTimeout(() => mapa.invalidateSize(), 50);
+  const temporizador = setTimeout(() => mapa.invalidateSize(), 50);
+  mapa.on('unload', () => clearTimeout(temporizador));
   return mapa;
 }
 
@@ -62,7 +63,7 @@ export function mapaPuntos(elemento, puntos, { linea = false } = {}) {
   if (linea && coordenadas.length > 1) {
     window.L.polyline(coordenadas, { color: '#1d1c1a', weight: 3, dashArray: '6 6' }).addTo(mapa);
   }
-  if (coordenadas.length > 1) mapa.fitBounds(coordenadas, { padding: [36, 36] });
+  if (coordenadas.length > 1) mapa.fitBounds(coordenadas, { padding: [36, 36], animate: false });
   return { destruir: () => mapa.remove() };
 }
 
