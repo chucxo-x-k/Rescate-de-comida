@@ -7,7 +7,6 @@ import {
   montar, mostrarErrores, vacio,
 } from '../ui.js';
 
-// CU 6 · Wireframe "Perfil Historial".
 export async function vistaPerfil({ contenedor, encabezado, refrescarUsuario, alLimpiar, sigueActiva }) {
   encabezado();
   let usuario = await refrescarUsuario();

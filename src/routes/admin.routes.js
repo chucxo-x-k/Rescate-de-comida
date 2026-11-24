@@ -37,7 +37,6 @@ export function rutasAdmin(c, { autenticar }) {
     res.json({ lotes: await c.lotes.listarParaAdmin(req.usuario, { estado: req.query.estado }) });
   });
 
-  // Ejecuta en este momento la tarea programada de caducidades (CU 11).
   router.post('/tareas/caducidades', async (_req, res) => {
     res.json({ resultado: await c.tiempo.ejecutarAhora() });
   });

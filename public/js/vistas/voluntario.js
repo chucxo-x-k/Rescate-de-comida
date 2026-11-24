@@ -8,7 +8,6 @@ import {
 } from '../ui.js';
 import { montarCalificaciones } from './comunes.js';
 
-// CU 7 · Wireframe "Panel de Control KPIs".
 export async function vistaPanelKpis({ contenedor, encabezado, sigueActiva }) {
   encabezado();
   const { categorias } = await api.get('/categorias');
@@ -73,7 +72,6 @@ function paradas(ruta) {
 
 const ZONAS = [['', 'Todas'], ['5', 'Hasta 5 km'], ['10', 'Hasta 10 km'], ['20', 'Hasta 20 km'], ['50', 'Hasta 50 km']];
 
-// CU 8 · Wireframe "Rutas Disponibles".
 export async function vistaRutasDisponibles({ contenedor, encabezado, ir, alLimpiar, sigueActiva }) {
   encabezado();
   const filtros = { radio: '', orden: 'caducidad' };
@@ -171,7 +169,6 @@ function pintarEntregaTerminada(contenedor, idRuta, nombreLote) {
   montarCalificaciones($('#calificaciones', contenedor), idRuta);
 }
 
-// CU 9 y 10 · Wireframe "Ruta Activa".
 export async function vistaMiRuta({ contenedor, encabezado, ir, alLimpiar }) {
   encabezado();
   const { ruta, checklist, criterios } = await api.get('/rutas/activa');

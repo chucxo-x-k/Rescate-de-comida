@@ -1,5 +1,5 @@
 import { RepositorioSQL } from './RepositorioSQL.js';
-import { SQL_MOMENTO_CADUCIDAD } from './RepositorioLotes.js';
+import { SQL_FOTO_PRINCIPAL, SQL_MOMENTO_CADUCIDAD } from './RepositorioLotes.js';
 
 const SELECT_RUTA = `
   SELECT r.*,
@@ -11,8 +11,7 @@ const SELECT_RUTA = `
          rc.latitud AS receptor_latitud, rc.longitud AS receptor_longitud,
          v.nombre AS voluntario_nombre, v.telefono AS voluntario_telefono,
          ch.aprobado AS checklist_aprobado,
-         (SELECT f.url_foto FROM fotos_lote f WHERE f.id_lote = l.id_lote
-          ORDER BY f.es_principal DESC, f.id_foto ASC LIMIT 1) AS foto_principal
+         ${SQL_FOTO_PRINCIPAL} AS foto_principal
   FROM rutas_recoleccion r
   JOIN lotes_alimentos l ON l.id_lote = r.id_lote
   JOIN categorias_alimento c ON c.id_categoria = l.id_categoria
@@ -32,10 +31,6 @@ export class RepositorioRutas extends RepositorioSQL {
   async detalle(idRuta) {
     const filas = await this.consultar(`${SELECT_RUTA} WHERE r.id_ruta = ? LIMIT 1`, [idRuta]);
     return filas[0] ?? null;
-  }
-
-  buscarPorLote(idLote) {
-    return this.buscarUno({ id_lote: idLote });
   }
 
   listarDisponibles() {
@@ -59,7 +54,6 @@ export class RepositorioRutas extends RepositorioSQL {
     return this.consultar(`${SELECT_RUTA} WHERE r.id_receptor = ? ORDER BY r.id_ruta DESC LIMIT 200`, [idReceptor]);
   }
 
-  /** CU 8: asignación atómica; si otro voluntario la tomó antes, no afecta filas. */
   async asignarVoluntarioSiDisponible(idRuta, idVoluntario) {
     const resultado = await this.consultar(
       `UPDATE rutas_recoleccion
@@ -78,8 +72,6 @@ export class RepositorioRutas extends RepositorioSQL {
     );
     return resultado.affectedRows > 0;
   }
-
-  // ---- Consultas del Panel de Control (CU 7) ----
 
   async indicadores({ dias, idCategoria = null }) {
     const filtroCategoria = idCategoria ? 'AND l.id_categoria = ?' : '';
@@ -179,7 +171,6 @@ export class RepositorioHistorial extends RepositorioSQL {
     ]);
   }
 
-  /** Registra el movimiento para donante, receptor y voluntario (si existe). */
   async registrarParticipantes({ idLote, idDonante, idReceptor, idVoluntario, estado }) {
     const filas = [
       [idDonante, idLote, idReceptor, estado],

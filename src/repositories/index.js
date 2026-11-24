@@ -10,7 +10,6 @@ import {
 import { RepositorioNotificaciones } from './RepositorioNotificaciones.js';
 import { RepositorioConfiguracion } from './RepositorioConfiguracion.js';
 
-/** Un repositorio por tabla del diccionario de datos (17). */
 export function crearRepositorios() {
   return {
     usuarios: new RepositorioUsuarios(),

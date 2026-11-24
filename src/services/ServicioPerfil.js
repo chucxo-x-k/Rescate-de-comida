@@ -15,14 +15,12 @@ export class ServicioPerfil {
     this.repos = repos;
   }
 
-  /** CU 6: consultar perfil. */
   async obtenerPerfil(idUsuario) {
     const fila = await this.repos.usuarios.buscarConDisponibilidad(idUsuario);
     if (!fila) throw ErrorApp.noEncontrado('Usuario no encontrado.');
     return Usuario.desdeFila(fila);
   }
 
-  /** CU 6: actualizar datos de contacto, contraseña o preferencias. */
   async guardarCambios(idUsuario, datos) {
     const actual = await this.repos.usuarios.buscarPorId(idUsuario);
     if (!actual) throw ErrorApp.noEncontrado('Usuario no encontrado.');
@@ -75,14 +73,12 @@ export class ServicioPerfil {
     return this.obtenerPerfil(idUsuario);
   }
 
-  /** CU 6: historial de donaciones, rescates o rutas con filtro por periodo. */
   async consultarHistorial(idUsuario, { dias = 30 } = {}) {
     const periodo = PERIODOS_VALIDOS.includes(Number(dias)) ? Number(dias) : 30;
     const filas = await this.repos.historial.listarPorUsuario(idUsuario, periodo);
     return filas.map((f) => new RegistroHistorial(f).toJSON());
   }
 
-  /** "Estoy recibiendo lotes" + "Editar capacidad y horario" (wireframe Panel Receptor). */
   async actualizarDisponibilidad(usuario, datos) {
     if (usuario.rol !== RolUsuario.RECEPTOR) throw ErrorApp.prohibido('Solo los receptores tienen disponibilidad.');
 

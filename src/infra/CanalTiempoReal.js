@@ -1,9 +1,5 @@
 const INTERVALO_LATIDO_MS = 25_000;
 
-/**
- * Server-Sent Events: cada usuario conectado recibe sus alertas al instante
- * (requerimiento de desempeño: notificar en menos de 5 segundos).
- */
 export class CanalTiempoReal {
   #conexiones = new Map();
   #latido;
@@ -38,10 +34,6 @@ export class CanalTiempoReal {
     const carga = `event: ${evento}\ndata: ${JSON.stringify(datos)}\n\n`;
     for (const res of conjunto) res.write(carga);
     return true;
-  }
-
-  estaConectado(idUsuario) {
-    return this.#conexiones.has(idUsuario);
   }
 
   #enviarATodos(texto) {

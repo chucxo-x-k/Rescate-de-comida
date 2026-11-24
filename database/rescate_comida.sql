@@ -1,11 +1,7 @@
-
 DROP DATABASE IF EXISTS rescate_comida;
 CREATE DATABASE rescate_comida CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE rescate_comida;
 
--- ---------------------------------------------------------------------
--- 1. usuarios · Cuentas de todos los actores (CU 1, 2, 3 y 6)
--- ---------------------------------------------------------------------
 CREATE TABLE usuarios (
   id_usuario            INT            NOT NULL AUTO_INCREMENT,
   nombre                VARCHAR(150)   NOT NULL,
@@ -29,9 +25,6 @@ CREATE TABLE usuarios (
   CONSTRAINT chk_usuarios_confiabilidad CHECK (indice_confiabilidad BETWEEN 0.0 AND 5.0)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 2. disponibilidad_receptor · Capacidad y horario (1 a 1 con usuarios)
--- ---------------------------------------------------------------------
 CREATE TABLE disponibilidad_receptor (
   id_receptor          INT            NOT NULL,
   recibiendo_lotes     TINYINT(1)     NOT NULL DEFAULT 0,
@@ -44,9 +37,6 @@ CREATE TABLE disponibilidad_receptor (
   CONSTRAINT fk_disp_receptor FOREIGN KEY (id_receptor) REFERENCES usuarios (id_usuario) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 3. solicitudes_verificacion · CU 3
--- ---------------------------------------------------------------------
 CREATE TABLE solicitudes_verificacion (
   id_solicitud      INT       NOT NULL AUTO_INCREMENT,
   id_usuario        INT       NOT NULL,
@@ -60,9 +50,6 @@ CREATE TABLE solicitudes_verificacion (
   CONSTRAINT fk_sol_admin   FOREIGN KEY (id_administrador) REFERENCES usuarios (id_usuario)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 4. documentos_verificacion · Archivos de una solicitud
--- ---------------------------------------------------------------------
 CREATE TABLE documentos_verificacion (
   id_documento    INT           NOT NULL AUTO_INCREMENT,
   id_solicitud    INT           NOT NULL,
@@ -74,9 +61,6 @@ CREATE TABLE documentos_verificacion (
   CONSTRAINT fk_doc_solicitud FOREIGN KEY (id_solicitud) REFERENCES solicitudes_verificacion (id_solicitud) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 5. categorias_alimento · Catálogo
--- ---------------------------------------------------------------------
 CREATE TABLE categorias_alimento (
   id_categoria  INT          NOT NULL AUTO_INCREMENT,
   nombre        VARCHAR(60)  NOT NULL,
@@ -84,9 +68,6 @@ CREATE TABLE categorias_alimento (
   UNIQUE KEY uq_categoria_nombre (nombre)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 6. lotes_alimentos · CU 4; estado cambia en CU 8 y 9
--- ---------------------------------------------------------------------
 CREATE TABLE lotes_alimentos (
   id_lote               INT           NOT NULL AUTO_INCREMENT,
   id_donante            INT           NOT NULL,
@@ -110,9 +91,6 @@ CREATE TABLE lotes_alimentos (
   CONSTRAINT chk_lote_peso CHECK (peso_kg > 0)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 7. fotos_lote · Solo la ruta en la nube
--- ---------------------------------------------------------------------
 CREATE TABLE fotos_lote (
   id_foto       INT           NOT NULL AUTO_INCREMENT,
   id_lote       INT           NOT NULL,
@@ -122,9 +100,6 @@ CREATE TABLE fotos_lote (
   CONSTRAINT fk_foto_lote FOREIGN KEY (id_lote) REFERENCES lotes_alimentos (id_lote) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 8. emparejamientos · Receptores sugeridos por cercanía (CU 5)
--- ---------------------------------------------------------------------
 CREATE TABLE emparejamientos (
   id_emparejamiento  INT           NOT NULL AUTO_INCREMENT,
   id_lote            INT           NOT NULL,
@@ -137,9 +112,6 @@ CREATE TABLE emparejamientos (
   CONSTRAINT fk_emp_receptor FOREIGN KEY (id_receptor) REFERENCES usuarios (id_usuario)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 9. rutas_recoleccion · Traslado donante -> receptor (CU 8 y 9)
--- ---------------------------------------------------------------------
 CREATE TABLE rutas_recoleccion (
   id_ruta                     INT           NOT NULL AUTO_INCREMENT,
   id_lote                     INT           NOT NULL,
@@ -159,9 +131,6 @@ CREATE TABLE rutas_recoleccion (
   CONSTRAINT fk_ruta_voluntario FOREIGN KEY (id_voluntario) REFERENCES usuarios (id_usuario)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 10. checklists_inocuidad · CU 10
--- ---------------------------------------------------------------------
 CREATE TABLE checklists_inocuidad (
   id_checklist      INT           NOT NULL AUTO_INCREMENT,
   id_ruta           INT           NOT NULL,
@@ -174,9 +143,6 @@ CREATE TABLE checklists_inocuidad (
   CONSTRAINT fk_check_ruta FOREIGN KEY (id_ruta) REFERENCES rutas_recoleccion (id_ruta)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 11. items_checklist · Puntos individuales del checklist
--- ---------------------------------------------------------------------
 CREATE TABLE items_checklist (
   id_item       INT           NOT NULL AUTO_INCREMENT,
   id_checklist  INT           NOT NULL,
@@ -186,9 +152,6 @@ CREATE TABLE items_checklist (
   CONSTRAINT fk_item_checklist FOREIGN KEY (id_checklist) REFERENCES checklists_inocuidad (id_checklist) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 12. evidencias_entrega · Confirmación digital (CU 9)
--- ---------------------------------------------------------------------
 CREATE TABLE evidencias_entrega (
   id_evidencia         INT           NOT NULL AUTO_INCREMENT,
   id_ruta              INT           NOT NULL,
@@ -201,9 +164,6 @@ CREATE TABLE evidencias_entrega (
   CONSTRAINT chk_evid_firma_o_codigo CHECK (firma_digital IS NOT NULL OR codigo_confirmacion IS NOT NULL)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 13. fotos_evidencia · Fotos del estado de los alimentos al entregar
--- ---------------------------------------------------------------------
 CREATE TABLE fotos_evidencia (
   id_foto_evidencia  INT           NOT NULL AUTO_INCREMENT,
   id_evidencia       INT           NOT NULL,
@@ -212,9 +172,6 @@ CREATE TABLE fotos_evidencia (
   CONSTRAINT fk_fotoev_evidencia FOREIGN KEY (id_evidencia) REFERENCES evidencias_entrega (id_evidencia) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 14. notificaciones · CU 5 y 11
--- ---------------------------------------------------------------------
 CREATE TABLE notificaciones (
   id_notificacion  INT           NOT NULL AUTO_INCREMENT,
   id_usuario       INT           NOT NULL,
@@ -228,9 +185,6 @@ CREATE TABLE notificaciones (
   CONSTRAINT fk_notif_lote    FOREIGN KEY (id_lote)    REFERENCES lotes_alimentos (id_lote)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 15. historial_actividad · Perfil e historial (CU 6)
--- ---------------------------------------------------------------------
 CREATE TABLE historial_actividad (
   id_historial    INT       NOT NULL AUTO_INCREMENT,
   id_usuario      INT       NOT NULL,
@@ -245,9 +199,6 @@ CREATE TABLE historial_actividad (
   CONSTRAINT fk_hist_contraparte FOREIGN KEY (id_contraparte) REFERENCES usuarios (id_usuario)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 16. calificaciones · Alimentan el índice de confiabilidad
--- ---------------------------------------------------------------------
 CREATE TABLE calificaciones (
   id_calificacion  INT           NOT NULL AUTO_INCREMENT,
   id_ruta          INT           NOT NULL,
@@ -264,9 +215,6 @@ CREATE TABLE calificaciones (
   CONSTRAINT chk_calif_puntuacion CHECK (puntuacion BETWEEN 1 AND 5)
 ) ENGINE=InnoDB;
 
--- ---------------------------------------------------------------------
--- 17. configuracion_sistema · Parámetros configurables
--- ---------------------------------------------------------------------
 CREATE TABLE configuracion_sistema (
   clave        VARCHAR(50)   NOT NULL,
   valor        VARCHAR(100)  NOT NULL,
@@ -274,9 +222,6 @@ CREATE TABLE configuracion_sistema (
   PRIMARY KEY (clave)
 ) ENGINE=InnoDB;
 
--- =====================================================================
---  Datos iniciales
--- =====================================================================
 INSERT INTO categorias_alimento (nombre) VALUES
   ('Frutas y verduras'),
   ('Panadería'),
@@ -294,8 +239,6 @@ INSERT INTO configuracion_sistema (clave, valor, descripcion) VALUES
   ('radio_voluntarios_km',   '10',  'Radio para avisar a voluntarios de rutas y caducidades cercanas'),
   ('horas_lote_nuevo',       '2',   'Horas durante las que un lote se etiqueta como Nuevo');
 
--- Cuenta de administrador inicial · correo: admin@rescate.mx · contraseña: Admin123!
--- (cámbiala desde Perfil después del primer inicio de sesión)
 INSERT INTO usuarios (nombre, correo, contrasena_hash, telefono, rol, direccion,
                       estado_verificacion, acepta_terminos)
 VALUES ('Administrador', 'admin@rescate.mx',

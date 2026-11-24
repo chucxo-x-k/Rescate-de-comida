@@ -4,7 +4,6 @@ import { idDeRuta } from '../utils/validacion.js';
 export function rutasNotificaciones(c, { autenticar, autenticarStream }) {
   const router = Router();
 
-  // Canal en tiempo real (SSE). Va antes del middleware de cabecera Authorization.
   router.get('/stream', autenticarStream, async (req, res) => {
     c.canal.suscribir(req.usuario.idUsuario, req, res);
     const noLeidas = await c.notificador.contarNoLeidas(req.usuario.idUsuario);

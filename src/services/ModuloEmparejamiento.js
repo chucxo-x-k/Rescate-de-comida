@@ -1,23 +1,16 @@
 import { Usuario } from '../domain/Usuario.js';
 import { TipoNotificacion } from '../domain/enums.js';
 
-/**
- * CU 5: Ejecutar emparejamiento geográfico.
- * Cruza la ubicación del lote con los receptores disponibles, filtra por radio
- * y capacidad, ordena por proximidad, guarda la lista y notifica.
- */
 export class ModuloEmparejamiento {
   constructor({ repos, notificador }) {
     this.repos = repos;
     this.notificador = notificador;
   }
 
-  /** Receptores cuyo radio de cobertura alcanza el lote. */
   static filtrarPorRadio(candidatos) {
     return candidatos.filter((c) => c.distanciaKm <= c.receptor.radioCoberturaKm);
   }
 
-  /** Receptores con capacidad (kg) suficiente para el peso del lote. */
   static filtrarPorCapacidad(candidatos, pesoKg) {
     return candidatos.filter((c) => c.receptor.tieneCapacidadPara(pesoKg));
   }
@@ -26,7 +19,6 @@ export class ModuloEmparejamiento {
     return [...candidatos].sort((a, b) => a.distanciaKm - b.distanciaKm);
   }
 
-  /** Pasos 1-4 sin efectos secundarios (útil para pruebas). */
   static calcularSugerencias(lote, receptores) {
     if (!lote.ubicacion) return [];
     const candidatos = receptores

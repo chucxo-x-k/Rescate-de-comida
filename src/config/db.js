@@ -2,8 +2,6 @@ import mysql from 'mysql2/promise';
 import { AsyncLocalStorage } from 'node:async_hooks';
 import { env } from './env.js';
 
-// La conexión de la transacción activa viaja en el contexto asíncrono,
-// así los repositorios se suman a ella sin recibir parámetros extra.
 const contextoTransaccion = new AsyncLocalStorage();
 
 export const pool = mysql.createPool({
@@ -15,10 +13,6 @@ export const pool = mysql.createPool({
   charset: 'utf8mb4',
 });
 
-/**
- * Valor crudo NOW() para usarse dentro de objetos de INSERT/UPDATE (`SET ?`).
- * Así todas las marcas de tiempo salen del reloj de la BD, igual que los DEFAULT.
- */
 export const AHORA = Object.freeze({ toSqlString: () => 'NOW()' });
 
 export async function consultar(sql, parametros = []) {

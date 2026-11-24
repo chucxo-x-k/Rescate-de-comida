@@ -30,12 +30,10 @@ export function rutasRecoleccion(c, { autenticar }) {
     res.json({ ruta, checklist: await c.inocuidad.obtenerPorRuta(id) });
   });
 
-  // CU 8: Aceptar ruta de recolección.
   router.post('/:id/aceptar', soloVoluntario, async (req, res) => {
     res.json({ ruta: await c.rutas.aceptar(req.usuario, idDeRuta(req.params.id)) });
   });
 
-  // CU 10: Validar checklist de inocuidad.
   router.post('/:id/checklist', soloVoluntario, async (req, res) => {
     res.json(await c.inocuidad.evaluar(req.usuario, idDeRuta(req.params.id), req.body ?? {}));
   });
@@ -44,7 +42,6 @@ export function rutasRecoleccion(c, { autenticar }) {
     res.json(await c.inocuidad.reportarIncumplimiento(req.usuario, idDeRuta(req.params.id), req.body ?? {}));
   });
 
-  // CU 9: Registrar evidencia y confirmación digital.
   router.post(
     '/:id/evidencia',
     soloVoluntario,

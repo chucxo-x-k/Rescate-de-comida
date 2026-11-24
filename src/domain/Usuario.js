@@ -1,7 +1,6 @@
 import { Ubicacion } from './Ubicacion.js';
 import { EstadoRuta, EstadoVerificacion, ROLES_CON_VERIFICACION, RolUsuario } from './enums.js';
 
-/** Clase abstracta del diagrama de clases. */
 export class Usuario {
   constructor(datos) {
     if (new.target === Usuario) {
@@ -40,7 +39,6 @@ export class Usuario {
     return this.estadoVerificacion === EstadoVerificacion.VERIFICADO;
   }
 
-  /** Solo cuentas VERIFICADO pueden publicar o recibir lotes (diccionario, tabla usuarios). */
   puedeOperar() {
     return this.activo && (!this.requiereVerificacion() || this.estaVerificado());
   }
@@ -82,7 +80,6 @@ export class Receptor extends Usuario {
     this.horarioFin = datos.horario_fin ?? null;
   }
 
-  /** Disponible = verificado, activo, con ubicación y marcando "Estoy recibiendo lotes". */
   estaDisponible() {
     return this.puedeOperar() && this.recibiendoLotes && this.ubicacion !== null;
   }

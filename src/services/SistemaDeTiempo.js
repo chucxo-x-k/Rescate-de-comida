@@ -1,6 +1,5 @@
 const MS_POR_MINUTO = 60_000;
 
-/** Actor "Reloj / Sistema de Tiempo" del diagrama de casos de uso (CU 11). */
 export class SistemaDeTiempo {
   #temporizador = null;
   #ejecutando = false;

@@ -1,7 +1,6 @@
 import { api } from '../api.js';
 import { $, $$, abrirModal, avisar, avisarError, chip, conBoton, html, montar } from '../ui.js';
 
-/** Visor de documentos privados (se descargan con el token y se muestran en un modal). */
 export async function verDocumento(idDocumento, nombre) {
   try {
     const blob = await api.archivo(`/verificacion/documentos/${idDocumento}/archivo`);
@@ -24,7 +23,6 @@ function pasoActual(estado) {
   return 1;
 }
 
-// CU 3 · Wireframe "Verificación".
 export async function vistaVerificacion({ contenedor, encabezado, refrescarUsuario, sigueActiva }) {
   encabezado({ titulo: 'Rescate de Comida', atras: '/perfil' });
 

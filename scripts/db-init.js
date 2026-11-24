@@ -1,5 +1,3 @@
-// Crea (o recrea) la base rescate_comida ejecutando database/rescate_comida.sql.
-// ADVERTENCIA: el script hace DROP DATABASE; borra los datos existentes.
 import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';

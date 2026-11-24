@@ -2,14 +2,12 @@ import { ErrorApp } from './ErrorApp.js';
 
 const REGEX_CORREO = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 const REGEX_TELEFONO = /^[0-9+\-\s()]{8,20}$/;
-const REGEX_FECHA = /^\d{4}-\d{2}-\d{2}$/;
 const REGEX_HORA = /^([01]\d|2[0-3]):[0-5]\d(:[0-5]\d)?$/;
 
 export const texto = (valor) => (typeof valor === 'string' ? valor.trim() : '');
 
 export const esCorreo = (valor) => REGEX_CORREO.test(texto(valor));
 export const esTelefono = (valor) => REGEX_TELEFONO.test(texto(valor));
-export const esFecha = (valor) => REGEX_FECHA.test(texto(valor)) && !Number.isNaN(Date.parse(`${valor}T00:00:00`));
 export const esHora = (valor) => REGEX_HORA.test(texto(valor));
 
 export const aBooleano = (valor) => valor === true || valor === 1 || valor === '1' || valor === 'true' || valor === 'on';
@@ -32,7 +30,6 @@ export function entero(valor, { min = 1, max = Number.MAX_SAFE_INTEGER } = {}) {
   return n;
 }
 
-/** Lanza 400 con la lista de errores si alguna regla falla. */
 export function exigir(errores) {
   const lista = Object.entries(errores).filter(([, msg]) => Boolean(msg));
   if (lista.length > 0) {

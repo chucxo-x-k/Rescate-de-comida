@@ -1,9 +1,5 @@
 import { ErrorApp } from '../utils/ErrorApp.js';
 
-/**
- * Requerimiento ético-legal 3: queda prohibida y bloqueada por sistema cualquier
- * función que implique cobro o comercialización de los alimentos donados.
- */
 const CLAVES_PROHIBIDAS = /^(precio|costo|cobro|pago|tarifa|venta|monto|importe|cuota)/i;
 const PATRONES_PROHIBIDOS = [
   /\$\s*\d/,
@@ -13,7 +9,7 @@ const PATRONES_PROHIBIDOS = [
 const CLAVES_EXCLUIDAS = /contrasena|password|token|firma/i;
 const RUTAS_COMERCIALES = /\/(pagos?|cobros?|ventas?|checkout|precios?)(\/|$)/i;
 
-function buscarProblema(valor, clave = '') {
+export function contieneComercializacion(valor, clave = '') {
   if (CLAVES_EXCLUIDAS.test(clave)) return null;
   if (clave && CLAVES_PROHIBIDAS.test(clave)) return `Campo no permitido: ${clave}`;
   if (typeof valor === 'string') {
@@ -22,27 +18,23 @@ function buscarProblema(valor, clave = '') {
   }
   if (Array.isArray(valor)) {
     for (const item of valor) {
-      const problema = buscarProblema(item, clave);
+      const problema = contieneComercializacion(item, clave);
       if (problema) return problema;
     }
     return null;
   }
   if (valor && typeof valor === 'object') {
     for (const [k, v] of Object.entries(valor)) {
-      const problema = buscarProblema(v, k);
+      const problema = contieneComercializacion(v, k);
       if (problema) return problema;
     }
   }
   return null;
 }
 
-export function contieneComercializacion(cuerpo) {
-  return buscarProblema(cuerpo);
-}
-
 export function bloquearComercializacion(req, _res, next) {
   if (['POST', 'PUT', 'PATCH'].includes(req.method) && req.body && typeof req.body === 'object') {
-    const problema = buscarProblema(req.body);
+    const problema = contieneComercializacion(req.body);
     if (problema) {
       throw new ErrorApp(422, 'Los alimentos donados no pueden venderse ni cobrarse.', { comercializacion: problema });
     }

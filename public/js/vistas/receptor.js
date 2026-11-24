@@ -73,7 +73,6 @@ function abrirDisponibilidad(usuario, alGuardar) {
   });
 }
 
-// Wireframe "Panel Receptor" (Lotes cercanos).
 export async function vistaLotesCercanos({ contenedor, encabezado, refrescarUsuario, alLimpiar, sigueActiva }) {
   encabezado();
   let usuario = await refrescarUsuario();
@@ -159,7 +158,6 @@ function tarjetaRecepcion(ruta) {
     </article>`;
 }
 
-// Mapa de navegación: "Mis recepciones".
 export async function vistaRecepciones({ contenedor, encabezado, alLimpiar, sigueActiva }) {
   encabezado();
   const pintar = async () => {

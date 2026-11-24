@@ -10,7 +10,6 @@ export const fechaHoraLocal = (fecha = new Date()) => `${fechaLocal(fecha)} ${ho
 
 const INICIALES_DIA = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
-/** Últimos `dias` días (incluido hoy) como [{ dia: 'YYYY-MM-DD', etiqueta: 'L' }]. */
 export function ultimosDias(dias, hoy = new Date()) {
   const lista = [];
   for (let i = dias - 1; i >= 0; i -= 1) {

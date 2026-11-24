@@ -10,10 +10,6 @@ export class EvidenciaEntrega {
     this.fechaHora = fechaHora;
   }
 
-  /**
-   * RF 4: evidencia fotográfica + firma o código de confirmación.
-   * `cantidadFotos` permite validar antes de subir los archivos.
-   */
   validar(cantidadFotos = this.fotosUrl.length) {
     const errores = {};
     if (cantidadFotos < 1) errores.fotos = 'Sube al menos una fotografía del estado de los alimentos.';

@@ -1,4 +1,3 @@
-// Lienzo de firma digital del receptor (CU 9).
 export function crearFirma(lienzo) {
   const contexto = lienzo.getContext('2d');
   let dibujando = false;

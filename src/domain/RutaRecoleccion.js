@@ -28,10 +28,6 @@ export class RutaRecoleccion {
     return new RutaRecoleccion(fila);
   }
 
-  /**
-   * Código de confirmación de 6 dígitos que el receptor dicta al voluntario.
-   * Se deriva del id de la ruta con HMAC, así no requiere columna adicional.
-   */
   static codigoEsperado(idRuta, secreto) {
     const hmac = createHmac('sha256', secreto).update(`ruta:${idRuta}`).digest();
     return String(hmac.readUInt32BE(0) % 1_000_000).padStart(6, '0');

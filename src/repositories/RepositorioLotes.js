@@ -1,9 +1,8 @@
 import { RepositorioSQL } from './RepositorioSQL.js';
 
-/** Fecha y hora exacta de caducidad; sin hora se considera el final del día. */
 export const SQL_MOMENTO_CADUCIDAD = "TIMESTAMP(l.fecha_caducidad, COALESCE(l.hora_caducidad, '23:59:59'))";
 
-const SQL_FOTO_PRINCIPAL = `(SELECT f.url_foto FROM fotos_lote f WHERE f.id_lote = l.id_lote
+export const SQL_FOTO_PRINCIPAL = `(SELECT f.url_foto FROM fotos_lote f WHERE f.id_lote = l.id_lote
                              ORDER BY f.es_principal DESC, f.id_foto ASC LIMIT 1)`;
 
 const SELECT_LOTE = `
@@ -37,7 +36,6 @@ export class RepositorioLotes extends RepositorioSQL {
     return this.consultar(`${SELECT_LOTE} WHERE l.id_donante = ? ORDER BY l.fecha_publicacion DESC, l.id_lote DESC`, [idDonante]);
   }
 
-  /** Lotes publicados, vigentes y que ningún receptor ha aceptado todavía. */
   listarDisponiblesSinReclamar() {
     return this.consultar(
       `${SELECT_LOTE}
@@ -47,7 +45,6 @@ export class RepositorioLotes extends RepositorioSQL {
     );
   }
 
-  /** Lotes activos (diagrama de clases: ServicioLotes.listarActivos). */
   listarActivos() {
     return this.consultar(
       `${SELECT_LOTE} WHERE l.estado IN ('PUBLICADO','EN_RECOLECCION') ORDER BY ${SQL_MOMENTO_CADUCIDAD} ASC LIMIT 500`,
@@ -73,7 +70,6 @@ export class RepositorioLotes extends RepositorioSQL {
     return filas[0];
   }
 
-  /** CU 11: lotes publicados sin reclamar (sin ruta o con ruta sin voluntario) dentro del umbral. */
   porVencerSinReclamar(umbralHoras) {
     return this.consultar(
       `${SELECT_LOTE}
@@ -84,7 +80,6 @@ export class RepositorioLotes extends RepositorioSQL {
     );
   }
 
-  /** Marca como CADUCADO lo que venció sin rescatarse y cancela sus rutas sin voluntario. */
   async marcarCaducados() {
     const vencidos = await this.consultar(
       `SELECT l.id_lote, l.id_donante, l.nombre
@@ -104,7 +99,6 @@ export class RepositorioLotes extends RepositorioSQL {
     return vencidos;
   }
 
-  /** Cambio de estado atómico: solo aplica si el lote sigue en el estado esperado. */
   async cambiarEstadoSi(idLote, estadoActual, nuevoEstado) {
     const resultado = await this.consultar(
       'UPDATE lotes_alimentos SET estado = ? WHERE id_lote = ? AND estado = ?',
@@ -149,14 +143,5 @@ export class RepositorioEmparejamientos extends RepositorioSQL {
       [valores],
     );
     return resultado.affectedRows;
-  }
-
-  porLote(idLote) {
-    return this.consultar(
-      `SELECT e.*, u.nombre AS receptor_nombre
-       FROM emparejamientos e JOIN usuarios u ON u.id_usuario = e.id_receptor
-       WHERE e.id_lote = ? ORDER BY e.posicion ASC`,
-      [idLote],
-    );
   }
 }

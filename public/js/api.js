@@ -1,6 +1,6 @@
 import { sesion } from './sesion.js';
 
-export class ErrorApi extends Error {
+class ErrorApi extends Error {
   constructor(estado, mensaje, detalles) {
     super(mensaje);
     this.estado = estado;

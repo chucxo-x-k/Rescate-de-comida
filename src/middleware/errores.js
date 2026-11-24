@@ -7,7 +7,7 @@ const MENSAJES_MULTER = {
   LIMIT_UNEXPECTED_FILE: 'Se recibió un archivo inesperado o demasiadas fotos.',
 };
 
-const ERRORES_CHECK = new Set([3819, 4025]); // MySQL / MariaDB: CHECK constraint violado
+const ERRORES_CHECK = new Set([3819, 4025]);
 
 export function rutaApiNoEncontrada(_req, res) {
   res.status(404).json({ error: 'Ruta de API no encontrada.' });

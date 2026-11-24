@@ -5,7 +5,6 @@ import { RutaRecoleccion } from '../domain/RutaRecoleccion.js';
 
 const redondear1 = (n) => (n === null || n === undefined ? null : Math.round(Number(n) * 10) / 10);
 
-/** Tarjeta de lote para listas (Mis lotes, Lotes cercanos, Admin). */
 export function vistaLote(fila, { usuario = null, umbralHoras = 6, horasNuevo = 2 } = {}) {
   const lote = LoteAlimentos.desdeFila(fila);
   const distanciaKm =
@@ -35,10 +34,6 @@ export function vistaLote(fila, { usuario = null, umbralHoras = 6, horasNuevo = 
   };
 }
 
-/**
- * Vista de ruta. Los teléfonos solo se incluyen para participantes (CU 8, paso 5:
- * al aceptar se muestran los datos de contacto del donante y receptor).
- */
 export function vistaRuta(fila, { usuario = null, secretoCodigo = null, umbralHoras = 6 } = {}) {
   const lote = LoteAlimentos.desdeFila({
     id_lote: fila.id_lote,

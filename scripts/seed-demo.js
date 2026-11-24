@@ -1,5 +1,3 @@
-// Datos de demostración: un donante, un receptor y un voluntario ya verificados,
-// más un lote publicado. Contraseña de todas las cuentas demo: Demo1234
 import bcrypt from 'bcryptjs';
 import { cerrarPool, consultar } from '../src/config/db.js';
 import { fechaLocal } from '../src/utils/fechas.js';

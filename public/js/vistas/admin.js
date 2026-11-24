@@ -6,7 +6,6 @@ import {
 } from '../ui.js';
 import { verDocumento } from './verificacion.js';
 
-// CU 3 (paso 5) · Wireframe "Administrador Verificaciones".
 export async function vistaVerificacionesPendientes({ contenedor, encabezado, alLimpiar, sigueActiva }) {
   encabezado();
   let abierta = null;
@@ -76,7 +75,6 @@ export async function vistaVerificacionesPendientes({ contenedor, encabezado, al
   alLimpiar(escuchar((tipo) => { if (tipo === 'notificacion') pintar().catch(() => {}); }));
 }
 
-// Mapa de navegación: Administrador → Usuarios.
 export async function vistaUsuarios({ contenedor, encabezado, usuario: yo, sigueActiva }) {
   encabezado();
   const filtros = { rol: '', q: '' };
@@ -130,7 +128,6 @@ export async function vistaUsuarios({ contenedor, encabezado, usuario: yo, sigue
 
 const ESTADOS = [['', 'Todos'], ['PUBLICADO', 'Disponibles'], ['EN_RECOLECCION', 'En recolección'], ['ENTREGADO', 'Entregados'], ['CADUCADO', 'Caducados'], ['CANCELADO', 'Cancelados']];
 
-// Mapa de navegación: Administrador → Lotes.
 export async function vistaLotesAdmin({ contenedor, encabezado, sigueActiva }) {
   encabezado();
   let estado = '';

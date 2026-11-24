@@ -22,7 +22,6 @@ function destino(notificacion, rol) {
   return ['#/perfil', 'Ver perfil'];
 }
 
-// Wireframe "Alertas".
 export async function vistaAlertas({ contenedor, encabezado, usuario, fijarNoLeidas, alLimpiar, sigueActiva }) {
   encabezado();
   let tipo = '';

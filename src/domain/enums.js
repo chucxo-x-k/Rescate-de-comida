@@ -1,5 +1,3 @@
-// Enumeraciones del diagrama de clases, con los valores del diccionario de datos.
-
 export const RolUsuario = Object.freeze({
   DONANTE: 'DONANTE',
   RECEPTOR: 'RECEPTOR',
@@ -7,10 +5,8 @@ export const RolUsuario = Object.freeze({
   ADMINISTRADOR: 'ADMINISTRADOR',
 });
 
-/** Roles que se pueden elegir al registrarse (el administrador se crea por script). */
 export const ROLES_REGISTRABLES = Object.freeze([RolUsuario.DONANTE, RolUsuario.RECEPTOR, RolUsuario.VOLUNTARIO]);
 
-/** Roles que requieren verificación de identidad u organización (RF Gestión de Usuarios 2). */
 export const ROLES_CON_VERIFICACION = Object.freeze([RolUsuario.DONANTE, RolUsuario.RECEPTOR]);
 
 export const EstadoVerificacion = Object.freeze({
@@ -67,7 +63,6 @@ export const TipoNotificacion = Object.freeze({
   CUENTA: 'CUENTA',
 });
 
-/** Puntos críticos del checklist de inocuidad (wireframe "Ruta Activa"). */
 export const CRITERIOS_INOCUIDAD = Object.freeze([
   'Cadena de frío mantenida',
   'Empaque íntegro y limpio',
