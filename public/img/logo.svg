@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Rescate de Comida">
+  <rect width="64" height="64" rx="16" fill="#1d1c1a"/>
+  <path d="M18 38c0-9 7-16 16-16h12v4c0 11-8 20-19 20h-3c-3.3 0-6-2.7-6-6z" fill="#7fb98f"/>
+  <path d="M20 46c6-8 12-13 22-18" stroke="#1d1c1a" stroke-width="3" stroke-linecap="round" fill="none"/>
+  <circle cx="44" cy="44" r="6" fill="#e9a56b"/>
+</svg>
