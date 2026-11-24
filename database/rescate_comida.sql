@@ -244,3 +244,5 @@ INSERT INTO usuarios (nombre, correo, contrasena_hash, telefono, rol, direccion,
 VALUES ('Administrador', 'admin@rescate.mx',
         '$2b$10$Di.sDngurZgZTp7O6wZiF.GopSrN9p6EseM47mIAR2JF0.JEPnll2',
         '0000000000', 'ADMINISTRADOR', 'Oficina central', 'VERIFICADO', 1);
+
+UPDATE fotos_lote SET url_foto = '/imagenes/lote-demostracion.svg' WHERE url_foto = '/img/lote-demo.svg';
